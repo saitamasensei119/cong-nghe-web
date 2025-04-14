@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+</head>
+<body>
+<h1>Chào mừng đến Dashboard!</h1>
+<p id="user-token"></p>
+<button id="logout-button">Đăng xuất</button>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('authToken');
+      const tokenDisplay = document.getElementById('user-token');
+      const logoutButton = document.getElementById('logout-button');
+
+      if (token) {
+          tokenDisplay.textContent = 'Your Token: ' + token.substring(0, 20) + '...'; // Hiển thị một phần token
+      } else {
+          window.location.href = '/login.html'; // Nếu không có token, chuyển về trang đăng nhập
+      }
+
+      logoutButton.addEventListener('click', () => {
+          localStorage.removeItem('authToken');
+          window.location.href = '/login.html';
+      });
+  });
+</script>
+</body>
+</html>
