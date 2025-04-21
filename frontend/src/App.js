@@ -8,6 +8,7 @@ import TakeExamPage from './pages/TakeExamPage/TakeExamPage';
 import StatisticsPage from './pages/StatisticsPage/StatisticsPage';
 import LoginPage from './pages/LoginPage/LoginPage'; // Thêm trang đăng nhập
 import MemberQuestionManager from './components/admin/MemberQuestionManager'; // Thêm quản lý câu hỏi
+import ResultViewer from './components/admin/ResultViewer';
 import axios from 'axios';
 
 // Component bảo vệ route cho admin
@@ -84,6 +85,7 @@ function App() {
                   <MemberQuestionManager />    
               }
             />
+            <Route path="/results/:id" component={ResultViewer} />
             
             {/* Trang đăng nhập */}
             <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />

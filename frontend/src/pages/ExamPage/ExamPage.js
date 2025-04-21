@@ -14,7 +14,7 @@ const ExamPage = () => {
 
   return (
     <div className="exam-page">
-      <h1 className='text-danger'>Danh sách bài thi</h1>
+      <h1>Danh sách bài thi</h1>
       <div className="exam-list">
         {exams.map(exam => (
           <div key={exam.id} className="exam-card">
