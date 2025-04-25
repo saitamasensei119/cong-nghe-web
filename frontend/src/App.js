@@ -6,48 +6,97 @@ import AdminDashboard from './pages/AdminDashboard/AdminDashboard';
 import ExamPage from './pages/ExamPage/ExamPage';
 import TakeExamPage from './pages/TakeExamPage/TakeExamPage';
 import StatisticsPage from './pages/StatisticsPage/StatisticsPage';
-import LoginPage from './pages/LoginPage/LoginPage'; // Thêm trang đăng nhập
+import LoginPage from './pages/LoginPage/LoginPage';
+import RegisterPage from './pages/RegisterPage/RegisterPage';
 import axios from 'axios';
 
-// Component bảo vệ route cho admin
-const ProtectedRoute = ({ children, isAdmin }) => {
-  return isAdmin ? children : <Navigate to="/login" />;
-};
-
-function App() {
-  // State quản lý trạng thái đăng nhập
-  const [user, setUser] = useState(null);
+// Protected Route component
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Kiểm tra trạng thái đăng nhập khi ứng dụng khởi động
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await axios.get('/api/auth/me', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
-        setUser(response.data);
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+
+        // Set default axios header
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+        // Verify token and get user info
+        const response = await axios.get('http://localhost:5000/api/auth/verify');
+        if (response.data.success) {
+          setIsAuthenticated(true);
+          setUserRole(response.data.user.role);
+        }
       } catch (error) {
-        setUser(null);
+        console.error('Auth error:', error);
+        localStorage.removeItem('token');
+        delete axios.defaults.headers.common['Authorization'];
       } finally {
         setLoading(false);
       }
     };
+
     checkAuth();
   }, []);
 
-  // Hàm đăng xuất
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-  };
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-  // Hàm đăng nhập (gọi từ LoginPage)
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(userRole)) {
+    return <Navigate to="/" />;
+  }
+
+  return children;
+};
+
+function App() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Set default axios header
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      // Get user info
+      const fetchUser = async () => {
+        try {
+          const response = await axios.get('http://localhost:5000/api/auth/verify');
+          if (response.data.success) {
+            setUser(response.data.user);
+          }
+        } catch (error) {
+          console.error('Error fetching user:', error);
+          localStorage.removeItem('token');
+          delete axios.defaults.headers.common['Authorization'];
+        }
+      };
+
+      fetchUser();
+    }
+  }, []);
+
   const handleLogin = (userData) => {
     setUser(userData);
   };
 
-  if (loading) return <div>Đang tải...</div>;
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    delete axios.defaults.headers.common['Authorization'];
+    setUser(null);
+  };
 
   return (
     <Router>
@@ -55,33 +104,35 @@ function App() {
         <Navbar user={user} onLogout={handleLogout} />
         <main className="content">
           <Routes>
-            {/* Trang chính: Danh sách bài thi */}
-            <Route path="/" element={<ExamPage />} />
+            {/* Public routes */}
+            <Route path="/login" element={
+              user ? <Navigate to="/" /> : <LoginPage onLogin={handleLogin} />
+            } />
+            <Route path="/register" element={
+              user ? <Navigate to="/" /> : <RegisterPage />
+            } />
 
-            {/* Trang xem danh sách bài thi */}
-            <Route path="/exams" element={<ExamPage />} />
-
-            {/* Trang thi trắc nghiệm */}
-            <Route path="/take-exam/:id" element={<TakeExamPage />} />
-
-            {/* Trang thống kê */}
-            <Route path="/statistics" element={<StatisticsPage />} />
-
-            {/* Trang admin - yêu cầu quyền admin */}
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute isAdmin={user?.role === 'admin'}>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
-
-            {/* Trang đăng nhập */}
-            <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
-
-            {/* Redirect nếu đường dẫn không tồn tại */}
-            <Route path="*" element={<Navigate to="/" />} />
+            {/* Protected routes */}
+            <Route path="/" element={
+              <ProtectedRoute>
+                <ExamPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/exam/:id" element={
+              <ProtectedRoute>
+                <TakeExamPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/statistics" element={
+              <ProtectedRoute allowedRoles={['admin', 'teacher']}>
+                <StatisticsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/*" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminDashboard onLogout={handleLogout} />
+              </ProtectedRoute>
+            } />
           </Routes>
         </main>
         <Footer />
