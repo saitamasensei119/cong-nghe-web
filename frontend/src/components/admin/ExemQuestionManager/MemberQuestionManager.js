@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import './MemberQuestionManager.css'; // Tùy chọn: Thêm CSS nếu cần
 
-const QuestionManager = () => {
+const MemberQuestionManager = ({ userRole }) => {
   const [questions, setQuestions] = useState([]);
 
   useEffect(() => {
-    // Gọi API để lấy danh sách đề thi
-    axios.get('/api/questions', {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    })
-      .then(response => setQuestions(response.data))
-      .catch(error => console.error('Error fetching questions:', error));
+    const mockQuestions = [
+      { id: 1, content: 'Câu hỏi 1: Nội dung câu hỏi mẫu 1' },
+      { id: 2, content: 'Câu hỏi 2: Nội dung câu hỏi mẫu 2' },
+      { id: 3, content: 'Câu hỏi 3: Nội dung câu hỏi mẫu 3' },
+    ];
+    console.log(mockQuestions); // Kiểm tra dữ liệu mẫu
+    setQuestions(mockQuestions);
   }, []);
 
   return (
@@ -31,8 +31,13 @@ const QuestionManager = () => {
               <td>{question.id}</td>
               <td>{question.content}</td>
               <td>
-                <button className="btn btn-primary">Sửa</button>
-                <button className="btn btn-danger">Xóa</button>
+                {/* Chỉ hiển thị nút nếu userRole là admin */}
+                {/* {userRole === 'admin' && ( */}
+                  <>
+                    <button className="btn btn-primary">Sửa</button>
+                    <button className="btn btn-danger">Xóa</button>
+                  </>
+                {/* // )} */}
               </td>
             </tr>
           ))}
@@ -42,4 +47,4 @@ const QuestionManager = () => {
   );
 };
 
-export default QuestionManager;
+export default MemberQuestionManager;
