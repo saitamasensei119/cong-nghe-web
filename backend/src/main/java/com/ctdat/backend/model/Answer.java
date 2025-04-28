@@ -1,7 +1,7 @@
 package com.ctdat.backend.model;
 
+import jakarta.persistence.*;
 import lombok.Data;
-import javax.persistence.*;
 
 @Entity
 @Table(name = "answers")

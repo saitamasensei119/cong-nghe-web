@@ -8,7 +8,7 @@ import com.ctdat.backend.repository.SubjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Service
@@ -51,9 +51,7 @@ public class ExamService {
 
     public void deleteExam(Integer id, String userRole) {
         if (!userRole.equals("teacher") && !userRole.equals("admin")) {
-            throw new SecurityException("
-
-                    Only teachers or admins can delete exams");
+            throw new SecurityException(" Only teachers or admins can delete exams");
         }
         Exam exam = examRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Exam not found with id: " + id));
