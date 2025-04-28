@@ -1,4 +1,4 @@
-package com.HTTN.thitn.dto;
+package com.HTTN.thitn.dto.Request;
 
 import lombok.Data;
 

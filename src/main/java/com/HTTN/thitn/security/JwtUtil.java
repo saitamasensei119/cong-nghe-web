@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.Base64;
 
 @Component
 public class JwtUtil {
