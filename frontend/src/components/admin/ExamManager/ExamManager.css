@@ -1,0 +1,145 @@
+/* Container chính  */
+
+.question-manager {
+ 
+  background-color: #fff; 
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
+  max-width: 100%; /* Giới hạn chiều rộng của container */
+  margin: 0 auto; /* Căn giữa container */
+  padding: 20px 30px; /* Thêm padding cho container */
+}
+
+/* Tiêu đề */
+.question-manager h1 {
+  margin-top: 3%;
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Nút thêm đề thi */
+.add-question-btn {
+  margin-bottom: 20px;
+  padding: 10px 10px;
+  background-color: #325c9c; /* Màu xanh dương */
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  margin-left: 5%;
+}
+
+.add-question-btn:hover {
+  background-color: #24107c; /* Màu xanh dương đậm hơn khi hover */
+  transform: scale(1.05);
+}
+
+/* Bảng */
+.table1 {
+
+  width: 90%; /* Giảm chiều rộng bảng */
+  margin: 0 auto; /* Căn giữa bảng */
+  border-collapse: collapse;
+  background-color: #fff; /* Nền trắng cho bảng */
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
+  justify-content: center; /* Căn giữa bảng */
+  margin-bottom: 10%;
+}
+
+/* Tiêu đề bảng */
+.table1 th {
+  background-color: #325c9c; /* Màu xanh dương cho tiêu đề */
+  color: #fff; /* Màu chữ trắng */
+  font-weight: bold;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 15px;
+
+}
+
+/* Hàng trong bảng */
+.table1 td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  color: #555;
+
+}
+
+/* Hiệu ứng hover cho hàng */
+.table1 tr:hover {
+  background-color: #f1f1f1; /* Màu xám nhạt khi hover */
+  transition: background-color 0.3s ease;
+}
+
+/* Dropdown trạng thái */
+select {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Nút hành động */
+.btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+}
+
+/* Nút sửa */
+.btn-primary {
+  background-color: #007bff;
+  color: #fff;
+  font-weight: bold;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+/* Nút xóa */
+.btn-danger {
+  background-color: #dc3545;
+  color: #fff;
+  font-weight: bold;
+}
+
+.btn-danger:hover {
+  background-color: #a71d2a;
+}
+
+/* Tên đề thi */
+.table td a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.table td a:hover {
+  text-decoration: underline;
+}

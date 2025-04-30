@@ -7,10 +7,10 @@ import ExamPage from './pages/ExamPage/ExamPage';
 import TakeExamPage from './pages/TakeExamPage/TakeExamPage';
 import StatisticsPage from './pages/StatisticsPage/StatisticsPage';
 import LoginPage from './pages/LoginPage/LoginPage'; // Thêm trang đăng nhập
-import MemberQuestionManager from './components/admin/ExemQuestionManager/MemberQuestionManager'; // Thêm quản lý câu hỏi
-import ResultViewer from './components/admin/ResultViewer';
+import ExamManager from './components/admin/ExamManager/ExamManager';
+import ResultViewer from './components/admin/ResultViewer/ResultViewer';
 import axios from 'axios';
-
+import AddExamPage from './pages/AddExamPage/AddExamPage'; // Thêm trang thêm đề thi
 // Component bảo vệ route cho admin
 const ProtectedRoute = ({ children, isAdmin }) => {
   return isAdmin ? children : <Navigate to="/login" />;
@@ -21,6 +21,16 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const [exams, setExams] = useState([
+    { id: 1, title: 'Đề thi Toán lớp 10', subject: 'Toán', isTaken: false },
+    { id: 2, title: 'Đề thi Lý lớp 11', subject: 'Vật lý', isTaken: true },
+    { id: 3, title: 'Đề thi Hóa lớp 12', subject: 'Hóa học', isTaken: false },
+  ]);
+
+  // Hàm thêm đề thi mới
+  const handleAddExam = (newExam) => {
+    setExams([...exams, newExam]);
+  };
   // Kiểm tra trạng thái đăng nhập khi ứng dụng khởi động
   useEffect(() => {
     const checkAuth = async () => {
@@ -81,9 +91,11 @@ function App() {
             {/* Route quản lý đề thi */}
             <Route
               path="/admin/questions"
-              element={                
-                  <MemberQuestionManager />    
-              }
+              element={<ExamManager exams={exams} />}
+            />
+            <Route
+              path="/admin/questions/add"
+              element={<AddExamPage onAddExam={handleAddExam} />}
             />
             <Route path="/results/:id" component={ResultViewer} />
             
