@@ -1,6 +1,6 @@
 package com.HTTN.thitn.controller;
 
-import com.HTTN.thitn.model.Subject;
+import com.HTTN.thitn.entity.Subject;
 import com.HTTN.thitn.service.SubjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

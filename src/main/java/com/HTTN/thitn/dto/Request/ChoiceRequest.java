@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChoiceDTO {
+public class ChoiceRequest {
     private Integer id;
     private Integer questionBankId;
     private String choiceText;

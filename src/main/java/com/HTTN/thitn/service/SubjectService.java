@@ -1,6 +1,6 @@
 package com.HTTN.thitn.service;
 
-import com.HTTN.thitn.model.Subject;
+import com.HTTN.thitn.entity.Subject;
 import com.HTTN.thitn.repository.SubjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,7 @@
 package com.HTTN.thitn.service;
 
-import com.HTTN.thitn.model.Choice;
-import com.HTTN.thitn.model.QuestionBank;
+import com.HTTN.thitn.entity.Choice;
+import com.HTTN.thitn.entity.QuestionBank;
 import com.HTTN.thitn.repository.ChoiceRepository;
 import com.HTTN.thitn.repository.QuestionBankRepository;
 import org.springframework.beans.factory.annotation.Autowired;

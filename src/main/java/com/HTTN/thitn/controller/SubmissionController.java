@@ -1,6 +1,6 @@
 package com.HTTN.thitn.controller;
 
-import com.HTTN.thitn.model.Submission;
+import com.HTTN.thitn.entity.Submission;
 import com.ctdat.backend.model.User;
 import com.HTTN.thitn.service.SubmissionService;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,8 +1,8 @@
 package com.HTTN.thitn.service;
 
-import com.HTTN.thitn.model.Exam;
-import com.HTTN.thitn.model.Question;
-import com.HTTN.thitn.model.QuestionBank;
+import com.HTTN.thitn.entity.Exam;
+import com.HTTN.thitn.entity.Question;
+import com.HTTN.thitn.entity.QuestionBank;
 import com.HTTN.thitn.repository.ExamRepository;
 import com.HTTN.thitn.repository.QuestionBankRepository;
 import com.HTTN.thitn.repository.QuestionRepository;

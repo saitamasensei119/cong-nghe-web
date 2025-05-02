@@ -7,8 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuestionDTO {
+public class ExamRequest {
     private Integer id;
-    private Integer examId;
-    private Integer questionBankId;
+    private String title;
+    private String description;
+    private Integer subjectId;
+    private Integer duration;
+    private Integer createdById;
 }

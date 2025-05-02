@@ -1,6 +1,6 @@
 package com.HTTN.thitn.controller;
 
-import com.HTTN.thitn.model.Choice;
+import com.HTTN.thitn.entity.Choice;
 import com.HTTN.thitn.service.ChoiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

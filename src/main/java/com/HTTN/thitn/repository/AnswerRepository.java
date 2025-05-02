@@ -1,8 +1,8 @@
 package com.HTTN.thitn.repository;
 
-import com.HTTN.thitn.model.Answer;
-import com.HTTN.thitn.model.Question;
-import com.HTTN.thitn.model.Submission;
+import com.HTTN.thitn.entity.Answer;
+import com.HTTN.thitn.entity.Question;
+import com.HTTN.thitn.entity.Submission;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

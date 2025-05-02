@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuestionBankDTO {
+public class QuestionBankRequest {
     private Integer id;
     private Integer subjectId;
     private String questionText;

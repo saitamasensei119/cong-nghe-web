@@ -1,7 +1,7 @@
 package com.HTTN.thitn.repository;
 
-import com.HTTN.thitn.model.Choice;
-import com.HTTN.thitn.model.QuestionBank;
+import com.HTTN.thitn.entity.Choice;
+import com.HTTN.thitn.entity.QuestionBank;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

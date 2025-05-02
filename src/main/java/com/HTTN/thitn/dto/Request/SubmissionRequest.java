@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AnswerDTO {
+public class SubmissionRequest {
     private Integer id;
-    private Integer submissionId;
-    private Integer questionId;
-    private Integer chosenChoiceId;
+    private Integer userId;
+    private Integer examId;
+    private Float score;
 }

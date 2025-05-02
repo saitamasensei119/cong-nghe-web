@@ -1,4 +1,4 @@
-package com.HTTN.thitn.model;
+package com.HTTN.thitn.entity;
 
 import lombok.Data;
 import jakarta.persistence.*;
