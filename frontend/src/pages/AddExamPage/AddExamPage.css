@@ -96,7 +96,7 @@
   .add-exam-page .save-button {
     width: 100%;
     padding: 12px;
-    background-color: #28a745;
+    background-color: #120c68;
     color: #fff;
     border: none;
     border-radius: 5px;
@@ -108,6 +108,6 @@
   }
   
   .add-exam-page .save-button:hover {
-    background-color: #218838;
+    background-color: #160b79;
     transform: scale(1.05);
   }
