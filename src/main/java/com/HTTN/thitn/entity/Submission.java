@@ -1,5 +1,7 @@
 package com.HTTN.thitn.entity;
 
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import lombok.Data;
 import jakarta.persistence.*;
         import java.time.LocalDateTime;
@@ -21,6 +23,8 @@ public class Submission {
     private Exam exam;
 
     @Column(nullable = false)
+    @DecimalMin(value = "0.0", inclusive = true, message = "Score must be >= 0.0")
+    @DecimalMax(value = "10.0", inclusive = true, message = "Score must be <= 10.0")
     private Float score = 0.0f;
 
     @Column(name = "submitted_at", nullable = false)

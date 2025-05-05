@@ -2,7 +2,7 @@ package com.HTTN.thitn.repository;
 
 import com.HTTN.thitn.entity.Exam;
 import com.HTTN.thitn.entity.Submission;
-import com.ctdat.backend.model.User;
+import com.HTTN.thitn.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

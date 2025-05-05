@@ -1,7 +1,7 @@
 package com.HTTN.thitn.controller;
 
 import com.HTTN.thitn.entity.QuestionBank;
-import com.ctdat.backend.model.User;
+import com.HTTN.thitn.entity.User;
 import com.HTTN.thitn.service.QuestionBankService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

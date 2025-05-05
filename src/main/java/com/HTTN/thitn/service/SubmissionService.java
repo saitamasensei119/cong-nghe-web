@@ -2,7 +2,7 @@ package com.HTTN.thitn.service;
 
 import com.HTTN.thitn.entity.Exam;
 import com.HTTN.thitn.entity.Submission;
-import com.ctdat.backend.model.User;
+import com.HTTN.thitn.entity.User;
 import com.HTTN.thitn.repository.ExamRepository;
 import com.HTTN.thitn.repository.SubmissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
