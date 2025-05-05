@@ -4,12 +4,15 @@ import com.HTTN.thitn.dto.Request.ChangePasswordRequest;
 import com.HTTN.thitn.dto.Request.LoginRequest;
 import com.HTTN.thitn.dto.Request.RegisterRequest;
 import com.HTTN.thitn.dto.Response.LoginResponse;
+import com.HTTN.thitn.entity.RefreshToken;
 import com.HTTN.thitn.entity.Role;
 import com.HTTN.thitn.entity.User;
 import com.HTTN.thitn.payload.ApiResponse;
+import com.HTTN.thitn.repository.RefreshTokenRepository;
 import com.HTTN.thitn.repository.RoleRepository;
 import com.HTTN.thitn.repository.UserRepository;
 import com.HTTN.thitn.security.JwtUtil;
+import com.HTTN.thitn.service.RefreshTokenService;
 import com.HTTN.thitn.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -31,11 +35,12 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
-
+    private final RefreshTokenService refreshTokenService;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
@@ -47,15 +52,17 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ApiResponse<>(false, "Sai tên người dùng hoặc mật khẩu", null));
         }
-        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
-        String token = jwtUtil.generateToken(userDetails);
 
-        LoginResponse loginResponse = new LoginResponse(token);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
+        String token = jwtUtil.generateAccessToken(userDetails);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(request.getUsername());
+
+        LoginResponse loginResponse = new LoginResponse(token, refreshToken.getToken());
         return ResponseEntity.ok(new ApiResponse<>(true, "Đăng nhập thành công", loginResponse));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<String>> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<ApiResponse<LoginResponse>> register(@RequestBody RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Tên người dùng đã tồn tại", null));
         }
@@ -75,7 +82,12 @@ public class AuthController {
 
         userRepository.save(user);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Đăng ký thành công.", null));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
+        String token = jwtUtil.generateAccessToken(userDetails);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getUsername());
+
+        LoginResponse response = new LoginResponse(token, refreshToken.getToken());
+        return ResponseEntity.ok(new ApiResponse<>(true, "Đăng ký thành công", response));
     }
 
     @PutMapping("/change-password")
@@ -91,5 +103,34 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ApiResponse<>(false, "Có lỗi xảy ra, vui lòng thử lại", null));
         }
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<ApiResponse<LoginResponse>> refreshAccessToken(@RequestBody Map<String, String> request) {
+        String requestToken = request.get("refreshToken");
+        RefreshToken refreshToken = refreshTokenRepository.findByToken(requestToken)
+                .orElseThrow(() -> new RuntimeException("Refresh token không hợp lệ"));
+
+        if (refreshTokenService.isTokenExpired(refreshToken)) {
+            refreshTokenRepository.delete(refreshToken);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse<>(false, "Refresh token đã hết hạn", null));
+        }
+
+        String username = refreshToken.getUser().getUsername();
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        String token = jwtUtil.generateAccessToken(userDetails);
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "Token mới", new LoginResponse(token, requestToken)));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<String>> logout(@RequestBody Map<String, String> request) {
+        String refreshToken = request.get("refreshToken");
+        if (refreshToken == null || refreshToken.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Refresh token không được để trống", null));
+        }
+        refreshTokenService.deleteByToken(refreshToken);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Đăng xuất thành công", null));
     }
 }

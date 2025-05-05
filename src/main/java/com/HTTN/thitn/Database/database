@@ -20,6 +20,15 @@ CREATE TABLE user_roles (
   PRIMARY KEY (user_id, role_id)
 );
 
+-- Bảng Refresh Token
+CREATE TABLE refresh_tokens (
+  id UUID PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  token TEXT NOT NULL UNIQUE,
+  expiry_date TIMESTAMP NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
 -- Bảng môn học
 CREATE TABLE subjects (
   id SERIAL PRIMARY KEY,
