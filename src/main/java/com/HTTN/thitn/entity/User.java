@@ -25,6 +25,9 @@ public class User {
     private String passwordHash;
 
     @Column(unique = true, nullable = false)
+    private String fullname;
+
+    @Column(unique = true, nullable = false)
     private String email;
 
     @ManyToMany(fetch = FetchType.EAGER)

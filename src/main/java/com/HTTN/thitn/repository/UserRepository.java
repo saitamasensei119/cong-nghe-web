@@ -1,5 +1,6 @@
 package com.HTTN.thitn.repository;
 
+import com.HTTN.thitn.entity.Role;
 import com.HTTN.thitn.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 

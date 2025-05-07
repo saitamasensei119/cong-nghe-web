@@ -1,5 +1,6 @@
 package com.HTTN.thitn.controller;
 
+import com.HTTN.thitn.dto.Request.RegisterRequest;
 import com.HTTN.thitn.dto.Request.StudentUpdateRequest;
 import com.HTTN.thitn.dto.Request.TeacherUpdateRequest;
 import com.HTTN.thitn.entity.User;
@@ -7,6 +8,7 @@ import com.HTTN.thitn.payload.ApiResponse;
 import com.HTTN.thitn.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -79,6 +81,22 @@ public class AdminController {
         } else {
             apiResponse = new ApiResponse<>(false, "Không tìm thấy giáo viên với ID " + teacherId, null);
             return ResponseEntity.badRequest().body(apiResponse);
+        }
+    }
+
+
+    @PostMapping("/teachers/register")
+    public ResponseEntity<ApiResponse<String>> registerTeacherByAdmin(
+            @RequestBody @Valid RegisterRequest request) {
+        try {
+            userService.registerTeacher(request);
+            ApiResponse<String> response = new ApiResponse<>(true,
+                    String.format("Đã đăng ký thành công tài khoản cho giáo viên: %s", request.getUsername()),
+                    null);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            ApiResponse<String> response = new ApiResponse<>(false, e.getMessage(), null);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 }
