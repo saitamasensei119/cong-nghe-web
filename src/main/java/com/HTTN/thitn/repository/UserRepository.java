@@ -13,4 +13,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
     List<User> findByRoles_Name(String roleName);
     void delete(User user);
+    List<User> findByRolesContaining(Role role);
+    List<User> findByRolesContainingAndFullnameContainingIgnoreCase(Role role, String name);
+    Optional<User> findByFullname(String fullname);
+    List<User> findByFullnameContainingIgnoreCase(String fullname);
+    Optional<User> findByEmail(String email);
+    List<User> findByEmailContainingIgnoreCase(String email);
+    List<User> findByFullnameContainingIgnoreCaseOrEmailContainingIgnoreCase(String fullname, String email);
+    List<User> findByRoles_NameAndFullnameContainingIgnoreCase(String roleName, String fullname);
+    List<User> findByRoles_NameAndEmailContainingIgnoreCase(String roleName, String email);
+    List<User> findByRoles_NameAndFullnameContainingIgnoreCaseOrEmailContainingIgnoreCase(String roleName, String fullname, String email);
 }

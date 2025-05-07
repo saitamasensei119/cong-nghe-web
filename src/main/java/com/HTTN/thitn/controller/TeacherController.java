@@ -1,6 +1,7 @@
 package com.HTTN.thitn.controller;
 
 import com.HTTN.thitn.dto.Request.TeacherUpdateRequest;
+import com.HTTN.thitn.dto.Response.UserDTO;
 import com.HTTN.thitn.entity.User;
 import com.HTTN.thitn.payload.ApiResponse;
 import com.HTTN.thitn.service.UserService;
@@ -29,10 +30,34 @@ public class TeacherController {
     }
 
     @GetMapping("/student/findall")
-    public ResponseEntity<ApiResponse<List<User>>> findByRoles_Name() {
-        List<User> users = userService.findUsersByRoleName("STUDENT");
+    public ResponseEntity<ApiResponse<List<UserDTO>>> findAllStudents() {
+        List<UserDTO> users = userService.findUsersByRoleName("STUDENT");
+        ApiResponse<List<UserDTO>> response = new ApiResponse<>(true, "Danh sách sinh viên.", users);
+        return ResponseEntity.ok(response);
+    }
 
-        ApiResponse<List<User>> response = new ApiResponse<>(true, "Danh sách sinh viên.", users);
+    @GetMapping("/student/search")
+    public ResponseEntity<ApiResponse<List<UserDTO>>> searchStudents(
+            @RequestParam(value = "fullname", required = false) String fullname,
+            @RequestParam(value = "email", required = false) String email) {
+
+        List<UserDTO> students = null;
+        String message = "Kết quả tìm kiếm sinh viên.";
+
+        if (fullname != null && !fullname.trim().isEmpty()) {
+            students = userService.searchUsersByRoleNameAndFullName("STUDENT", fullname);
+            message = "Tìm thấy " + students.size() + " sinh viên theo tên: " + fullname;
+        } else if (email != null && !email.trim().isEmpty()) {
+            students = userService.searchUsersByRoleNameAndEmail("STUDENT", email);
+            message = "Tìm thấy " + students.size() + " sinh viên theo email: " + email;
+        } else if (fullname != null && !fullname.trim().isEmpty() && email != null && !email.trim().isEmpty()) {
+            students = userService.searchUsersByRoleNameAndFullNameContainingIgnoreCaseOrEmailContainingIgnoreCase("STUDENT", fullname, email);
+            message = "Tìm thấy " + students.size() + " sinh viên theo tên hoặc email: " + fullname + " / " + email;
+        } else {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Vui lòng cung cấp tham số tìm kiếm (fullname hoặc email).", null));
+        }
+
+        ApiResponse<List<UserDTO>> response = new ApiResponse<>(true, message, students);
         return ResponseEntity.ok(response);
     }
 }

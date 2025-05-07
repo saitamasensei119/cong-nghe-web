@@ -3,6 +3,7 @@ package com.HTTN.thitn.service;
 import com.HTTN.thitn.dto.Request.RegisterRequest;
 import com.HTTN.thitn.dto.Request.StudentUpdateRequest;
 import com.HTTN.thitn.dto.Request.TeacherUpdateRequest;
+import com.HTTN.thitn.dto.Response.UserDTO;
 import com.HTTN.thitn.entity.Role;
 import com.HTTN.thitn.entity.User;
 import com.HTTN.thitn.repository.RoleRepository;
@@ -19,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -64,8 +66,67 @@ public class UserService {
         userRepository.save(teacher);
     }
 
-    public List<User> findUsersByRoleName(String roleName) {
-        return userRepository.findByRoles_Name(roleName);
+    public List<UserDTO> findUsersByRoleName(String roleName) {
+        return userRepository.findByRoles_Name(roleName)
+                .stream()
+                .map(this::convertToUserDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<UserDTO> searchUsersByRoleNameAndFullName(String roleName, String fullname) {
+        return userRepository.findByRoles_NameAndFullnameContainingIgnoreCase(roleName, fullname)
+                .stream()
+                .map(this::convertToUserDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<UserDTO> searchUsersByRoleNameAndEmail(String roleName, String email) {
+        return userRepository.findByRoles_NameAndEmailContainingIgnoreCase(roleName, email)
+                .stream()
+                .map(this::convertToUserDTO)
+                .collect(Collectors.toList());
+    }
+    public Optional<UserDTO> findUserByFullName(String fullname) {
+        return userRepository.findByFullname(fullname).map(this::convertToUserDTO);
+    }
+
+    public List<UserDTO> searchUsersByFullName(String fullname) {
+        return userRepository.findByFullnameContainingIgnoreCase(fullname)
+                .stream()
+                .map(this::convertToUserDTO)
+                .collect(Collectors.toList());
+    }
+
+    public Optional<UserDTO> findUserByEmail(String email) {
+        return userRepository.findByEmail(email).map(this::convertToUserDTO);
+    }
+
+    public List<UserDTO> searchUsersByEmail(String email) {
+        return userRepository.findByEmailContainingIgnoreCase(email)
+                .stream()
+                .map(this::convertToUserDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<UserDTO> searchUsersByNameOrEmail(String query) {
+        return userRepository.findByFullnameContainingIgnoreCaseOrEmailContainingIgnoreCase(query, query)
+                .stream()
+                .map(this::convertToUserDTO)
+                .collect(Collectors.toList());
+    }
+    public List<UserDTO> searchUsersByRoleNameAndFullNameContainingIgnoreCaseOrEmailContainingIgnoreCase(String roleName, String fullname, String email) {
+        return userRepository.findByRoles_NameAndFullnameContainingIgnoreCaseOrEmailContainingIgnoreCase(roleName, fullname, email)
+                .stream()
+                .map(this::convertToUserDTO)
+                .collect(Collectors.toList());
+    }
+
+    private UserDTO convertToUserDTO(User user) {
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setFullname(user.getFullname());
+        dto.setEmail(user.getEmail());
+        return dto;
     }
 
     public Optional<String> deleteStudentById(Long studentId) {

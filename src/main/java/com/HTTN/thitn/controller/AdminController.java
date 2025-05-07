@@ -3,6 +3,7 @@ package com.HTTN.thitn.controller;
 import com.HTTN.thitn.dto.Request.RegisterRequest;
 import com.HTTN.thitn.dto.Request.StudentUpdateRequest;
 import com.HTTN.thitn.dto.Request.TeacherUpdateRequest;
+import com.HTTN.thitn.dto.Response.UserDTO;
 import com.HTTN.thitn.entity.User;
 import com.HTTN.thitn.payload.ApiResponse;
 import com.HTTN.thitn.service.UserService;
@@ -48,9 +49,9 @@ public class AdminController {
     }
 
     @GetMapping("/users/role/{role}")
-    public ResponseEntity<ApiResponse<List<User>>> findUsersByRole(@PathVariable String role) {
-        List<User> users = userService.findUsersByRoleName(role.toUpperCase());
-        ApiResponse<List<User>> response = new ApiResponse<>(true,
+    public ResponseEntity<ApiResponse<List<UserDTO>>> findUsersByRole(@PathVariable String role) {
+        List<UserDTO> users = userService.findUsersByRoleName(role.toUpperCase());
+        ApiResponse<List<UserDTO>> response = new ApiResponse<>(true,
                 String.format("Found %d user(s) with role %s.", users.size(), role.toUpperCase()),
                 users);
         return ResponseEntity.ok(response);
@@ -98,5 +99,31 @@ public class AdminController {
             ApiResponse<String> response = new ApiResponse<>(false, e.getMessage(), null);
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("/users/search")
+    public ResponseEntity<ApiResponse<List<UserDTO>>> searchUsers(
+            @RequestParam(value = "fullname", required = false) String fullname,
+            @RequestParam(value = "email", required = false) String email) {
+
+        List<UserDTO> users = null;
+        String message = "Kết quả tìm kiếm người dùng.";
+
+        if (fullname != null && !fullname.trim().isEmpty()) {
+            users = userService.searchUsersByFullName(fullname);
+            message = "Tìm thấy " + users.size() + " người dùng theo tên: " + fullname;
+        } else if (email != null && !email.trim().isEmpty()) {
+            users = userService.searchUsersByEmail(email);
+            message = "Tìm thấy " + users.size() + " người dùng theo email: " + email;
+        } else if (fullname != null && !fullname.trim().isEmpty() && email != null && !email.trim().isEmpty()) {
+            // Bạn có thể chọn tìm kiếm kết hợp hoặc xử lý riêng lẻ
+            users = userService.searchUsersByNameOrEmail(fullname);
+            message = "Tìm thấy " + users.size() + " người dùng theo tên hoặc email: " + fullname + " / " + email;
+        } else {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Vui lòng cung cấp tham số tìm kiếm (fullname hoặc email).", null));
+        }
+
+        ApiResponse<List<UserDTO>> response = new ApiResponse<>(true, message, users);
+        return ResponseEntity.ok(response);
     }
 }
