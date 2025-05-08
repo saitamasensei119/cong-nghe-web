@@ -10,7 +10,7 @@ import org.springframework.context.annotation.ComponentScan;
 public class ThitnApplication {
 
 	public static void main(String[] args) {
-//		Dotenv.load();
+		Dotenv.load();
 		SpringApplication.run(ThitnApplication.class, args);
 	}
 }

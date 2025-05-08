@@ -3,6 +3,7 @@ CREATE TABLE users (
   id SERIAL PRIMARY KEY,
   username VARCHAR(50) UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
+  fullname VARCHAR(100) UNIQUE NOT NULL,
   email VARCHAR(100) UNIQUE NOT NULL,
   created_at TIMESTAMP DEFAULT NOW()
 );
@@ -105,10 +106,10 @@ INSERT INTO roles (name) VALUES ('TEACHER');
 INSERT INTO roles (name) VALUES ('STUDENT');
 
 -- Thay thế 'password_hash_placeholder' bằng mật khẩu đã băm
-INSERT INTO users (username, password_hash, email) VALUES
-('admin_user', '$2a$10$cLYH6jtosUj6Ly94lY3m0uKv5tmVWkKcEbM2h8coryIsQ465XGDK6', 'admin@example.com'),
-('teacher_user', '$2a$10$/tk2XokfBUL9XdYaosWCwOcLvwhFGNfzabK8vtPJFvz9gZaFMrkNy', 'teacher@example.com'),
-('student_user', '$2a$10$xRnt2lILp5S2lAScQ9EI8.ewu.ncQ5NEjyVeyk/wwEpo8Iw7F.HLm', 'student@example.com');
+INSERT INTO users (username, password_hash, fullname, email) VALUES
+('admin_user', '$2a$10$cLYH6jtosUj6Ly94lY3m0uKv5tmVWkKcEbM2h8coryIsQ465XGDK6', 'Admin User', 'admin@example.com'),
+('teacher_user', '$2a$10$/tk2XokfBUL9XdYaosWCwOcLvwhFGNfzabK8vtPJFvz9gZaFMrkNy', 'Teacher User', 'teacher@example.com'),
+('student_user', '$2a$10$xRnt2lILp5S2lAScQ9EI8.ewu.ncQ5NEjyVeyk/wwEpo8Iw7F.HLm', 'Student User', 'student@example.com');
 
 -- Gán vai trò cho người dùng
 INSERT INTO user_roles (user_id, role_id) VALUES
