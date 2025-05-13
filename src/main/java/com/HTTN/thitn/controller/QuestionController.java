@@ -23,12 +23,14 @@ public class QuestionController {
         return ResponseEntity.status(201).body(question);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> removeQuestionFromExam(@PathVariable Integer id,
+    @DeleteMapping("/exam/{examId}/question-bank/{questionBankId}")
+    public ResponseEntity<Void> removeQuestionFromExam(@PathVariable Integer examId,
+                                                       @PathVariable Integer questionId,
                                                        @RequestHeader("X-User-Role") String userRole) {
-        questionService.removeQuestionFromExam(id, userRole);
-        return ResponseEntity.noContent().build();
+        questionService.removeQuestionFromExam(examId,questionId,userRole);
+        return ResponseEntity.noContent().build();  // Trả về HTTP status 204 No Content
     }
+
 
     @GetMapping("/exam/{examId}")
     public ResponseEntity<List<Question>> getQuestionsByExam(@PathVariable Integer examId) {

@@ -1,5 +1,6 @@
 package com.HTTN.thitn.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,4 +35,11 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
+    @ManyToMany(mappedBy = "teachers")
+    @JsonIgnore
+    private Set<Subject> subjects = new HashSet<>();
+    public boolean hasRole(String roleName) {
+        return roles.stream()
+                .anyMatch(role -> role.getName().equalsIgnoreCase(roleName));
+    }
 }

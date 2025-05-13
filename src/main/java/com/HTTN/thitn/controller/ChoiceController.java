@@ -1,5 +1,7 @@
 package com.HTTN.thitn.controller;
 
+import com.HTTN.thitn.dto.Request.ChoiceRequest;
+import com.HTTN.thitn.dto.Response.ChoiceResponse;
 import com.HTTN.thitn.entity.Choice;
 import com.HTTN.thitn.service.ChoiceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +18,16 @@ public class ChoiceController {
     private ChoiceService choiceService;
 
     @PostMapping("/question/{questionBankId}")
-    public ResponseEntity<Choice> createChoice(@PathVariable Integer questionBankId,
-                                               @RequestBody Choice choice,
-                                               @RequestHeader("X-User-Role") String userRole) {
-        Choice createdChoice = choiceService.createChoice(questionBankId, choice, userRole);
-        return ResponseEntity.status(201).body(createdChoice);
+    public ResponseEntity<ChoiceResponse> createChoice(@PathVariable Integer questionBankId,
+                                                       @RequestBody ChoiceRequest request,
+                                                       @RequestHeader("X-User-Role") String userRole) {
+        Choice choice = new Choice();
+        choice.setChoiceText(request.getChoiceText());
+        choice.setIsCorrect(request.getIsCorrect());
+        Choice created = choiceService.createChoice(questionBankId, choice, userRole);
+        return ResponseEntity.status(201).body(new ChoiceResponse(created));
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<Choice> updateChoice(@PathVariable Integer id,

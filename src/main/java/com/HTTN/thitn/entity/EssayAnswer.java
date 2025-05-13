@@ -21,4 +21,8 @@ public class EssayAnswer {
 
     @Column(name = "answer_text", nullable = false)
     private String answerText;
+
+    @Column(name = "score")
+    private Float score;
+
 }

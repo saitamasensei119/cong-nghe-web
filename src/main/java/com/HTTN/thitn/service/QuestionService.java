@@ -38,7 +38,7 @@ public class QuestionService {
         return questionRepository.save(question);
     }
 
-    public void removeQuestionFromExam(Integer questionId, String userRole) {
+    public void removeQuestionFromExam(Integer examId, Integer questionId, String userRole) {
         if (!userRole.equals("teacher") && !userRole.equals("admin")) {
             throw new SecurityException("Only teachers or admins can remove questions from exams");
         }

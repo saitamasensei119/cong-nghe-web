@@ -4,6 +4,8 @@ import lombok.Data;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "subjects")
@@ -18,7 +20,17 @@ public class Subject {
     private String name;
 
     private String description;
+    @Column(name = "status", nullable = false)
+    private Integer status = 0;  // 0 là 'PENDING', 1 là 'APPROVED', 2 là 'REJECTED'
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+    @ManyToMany
+    @JoinTable(
+            name = "subject_teachers",
+            joinColumns = @JoinColumn(name = "subject_id"),
+            inverseJoinColumns = @JoinColumn(name = "teacher_id")
+    )
+    private Set<User> teachers = new HashSet<>();
+
 }
