@@ -23,7 +23,7 @@ public class QuestionController {
         return ResponseEntity.status(201).body(question);
     }
 
-    @DeleteMapping("/exam/{examId}/question-bank/{questionBankId}")
+    @DeleteMapping("/exam/{examId}/question-bank/{questionId}")
     public ResponseEntity<Void> removeQuestionFromExam(@PathVariable Integer examId,
                                                        @PathVariable Integer questionId,
                                                        @RequestHeader("X-User-Role") String userRole) {
