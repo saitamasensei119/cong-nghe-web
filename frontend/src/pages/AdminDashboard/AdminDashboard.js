@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './AdminDashboard.css';
-import QuestionManager from '../../components/admin/QuestionManager/QuestionManager';
-import ExamManager from '../../components/admin/ExamManager/ExamManager';
 import UserManager from '../../components/admin/UserManager/UserManager';
-import SubjectManager from '../../components/admin/SubjectManager/SubjectManager';
+import axios from 'axios';
+import { fetchListUsers } from '../../services/AdminService';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -16,48 +15,70 @@ const AdminDashboard = () => {
   });
   const [recentActivities, setRecentActivities] = useState([]);
   const [notifications, setNotifications] = useState(3);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Simulate API calls
-    const fetchStats = async () => {
-      // Mock data
-      setStats({
-        totalUsers: 1250,
-        totalExams: 45,
-        totalResults: 3200
-      });
-    };
-
-    const fetchActivities = async () => {
-      // Mock data
-      setRecentActivities([
-        {
-          id: 1,
-          type: 'success',
-          title: 'Người dùng mới đã đăng ký',
-          time: '5 phút trước',
-          icon: 'user-plus'
-        },
-        {
-          id: 2,
-          type: 'warning',
-          title: 'Bài thi sắp hết hạn',
-          time: '1 giờ trước',
-          icon: 'clock'
-        },
-        {
-          id: 3,
-          type: 'error',
-          title: 'Lỗi hệ thống đã được khắc phục',
-          time: '2 giờ trước',
-          icon: 'exclamation-triangle'
-        }
-      ]);
-    };
-
+    // Fetch stats and activities
     fetchStats();
     fetchActivities();
+
+    // Fetch users from database
+    fetchUsers();
   }, []);
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const responseStudents = await fetchListUsers('student');
+      const responseTeachers = await fetchListUsers('teacher');
+      setUsers([...responseStudents.data, ...responseTeachers.data])
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching users:', err);
+      setError('Không thể lấy danh sách người dùng. Vui lòng thử lại sau.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Simulate API calls
+  const fetchStats = async () => {
+    // Mock data
+    setStats({
+      totalUsers: 1250,
+      totalExams: 45,
+      totalResults: 3200
+    });
+  };
+
+  const fetchActivities = async () => {
+    // Mock data
+    setRecentActivities([
+      {
+        id: 1,
+        type: 'success',
+        title: 'Người dùng mới đã đăng ký',
+        time: '5 phút trước',
+        icon: 'user-plus'
+      },
+      {
+        id: 2,
+        type: 'warning',
+        title: 'Bài thi sắp hết hạn',
+        time: '1 giờ trước',
+        icon: 'clock'
+      },
+      {
+        id: 3,
+        type: 'error',
+        title: 'Lỗi hệ thống đã được khắc phục',
+        time: '2 giờ trước',
+        icon: 'exclamation-triangle'
+      }
+    ]);
+  };
 
   const handleMenuClick = (menu) => {
     setActiveMenu(menu);
@@ -125,13 +146,7 @@ const AdminDashboard = () => {
           </>
         );
       case 'users':
-        return <UserManager />;
-      case 'exams':
-        return <ExamManager />;
-      case 'questions':
-        return <QuestionManager />;
-      case 'subjects':
-        return <SubjectManager />;
+        return <UserManager users={users} loading={loading} error={error} refreshUsers={fetchUsers} />;
       default:
         return null;
     }
@@ -159,27 +174,6 @@ const AdminDashboard = () => {
           >
             <i className="fas fa-users"></i>
             Quản lý người dùng
-          </li>
-          <li
-            className={`menu-item ${activeMenu === 'exams' ? 'active' : ''}`}
-            onClick={() => handleMenuClick('exams')}
-          >
-            <i className="fas fa-file-alt"></i>
-            Quản lý bài thi
-          </li>
-          <li
-            className={`menu-item ${activeMenu === 'questions' ? 'active' : ''}`}
-            onClick={() => handleMenuClick('questions')}
-          >
-            <i className="fas fa-question-circle"></i>
-            Quản lý câu hỏi
-          </li>
-          <li
-            className={`menu-item ${activeMenu === 'subjects' ? 'active' : ''}`}
-            onClick={() => handleMenuClick('subjects')}
-          >
-            <i className="fas fa-book"></i>
-            Quản lý môn học
           </li>
         </ul>
       </div>

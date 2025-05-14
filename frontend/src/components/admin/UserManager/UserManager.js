@@ -1,121 +1,245 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 import './UserManager.css';
-const UserManager = () => {
-  // State quản lý danh sách thành viên
-  const [users, setUsers] = useState([]);
-  // State cho form thêm/sửa thành viên
+import axios from 'axios';
+import { addNewTeacher } from '../../../services/AdminService';
+
+const UserManager = ({ users, loading, error, refreshUsers }) => {
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
-    id: null,
-    name: '',
+    username: '',
+    fullname: '',
     email: '',
     password: '',
-    role: 'user' // Mặc định là user, có thể là admin
+    role: ''
   });
-  // State kiểm soát trạng thái loading
-  const [loading, setLoading] = useState(true);
-  // State kiểm soát chế độ chỉnh sửa
-  const [isEditing, setIsEditing] = useState(false);
 
-  // Lấy danh sách thành viên từ backend khi component mount
-  useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setUsers([
-        {
-          id: 1,
-          name: 'Nguyễn Văn A',
-          email: 'nguyenvana@example.com',
-          role: 'Học sinh',
-          status: 'Active'
-        },
-        {
-          id: 2,
-          name: 'Trần Thị B',
-          email: 'tranthib@example.com',
-          role: 'Giáo viên',
-          status: 'Active'
-        }
-      ]);
-      setLoading(false);
-    }, 1000);
-  }, []);
+  // Filter users based on search term
+  const filteredUsers = users?.filter(user =>
+    user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
 
-  // Xử lý thay đổi input trong form
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+  const handleAddUser = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await addNewTeacher(formData);
+      console.log('check add teacher', response)
+      refreshUsers();
+      resetForm();
+    } catch (err) {
+      console.error('Error adding user:', err);
+      alert('Không thể thêm người dùng. Vui lòng thử lại sau.');
+    }
   };
 
-  // Thêm hoặc sửa thành viên
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  const handleUpdateUser = async () => {
+    if (!selectedUser) return;
 
     try {
-      if (isEditing) {
-        // Cập nhật thành viên
-        const response = await axios.put(`/api/users/${formData.id}`, formData);
-        setUsers(users.map(user =>
-          user.id === formData.id ? response.data : user
-        ));
-      } else {
-        // Thêm thành viên mới
-        const response = await axios.post('/api/users', formData);
-        setUsers([...users, response.data]);
-      }
-      // Reset form sau khi thêm/sửa
+      await axios.put(`http://localhost:5000/api/users/${selectedUser._id}`, formData);
+      refreshUsers();
+      setIsEditing(false);
+      setSelectedUser(null);
       resetForm();
-    } catch (error) {
-      console.error('Error saving user:', error);
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      console.error('Error updating user:', err);
+      alert('Không thể cập nhật người dùng. Vui lòng thử lại sau.');
     }
   };
 
-  // Xóa thành viên
-  const handleDelete = async (id) => {
-    if (window.confirm('Bạn có chắc muốn xóa thành viên này?')) {
-      try {
-        setLoading(true);
-        await axios.delete(`/api/users/${id}`);
-        setUsers(users.filter(user => user.id !== id));
-      } catch (error) {
-        console.error('Error deleting user:', error);
-      } finally {
-        setLoading(false);
+  const handleDeleteUser = async (userId) => {
+    if (!window.confirm('Bạn có chắc chắn muốn xóa người dùng này?')) return;
+
+    try {
+      await axios.delete(`http://localhost:5000/api/users/${userId}`);
+      refreshUsers();
+      if (selectedUser?._id === userId) {
+        setSelectedUser(null);
+        resetForm();
       }
+    } catch (err) {
+      console.error('Error deleting user:', err);
+      alert('Không thể xóa người dùng. Vui lòng thử lại sau.');
     }
   };
 
-  // Chuyển sang chế độ chỉnh sửa
-  const handleEdit = (user) => {
-    setFormData({ ...user, password: '' }); // Không hiển thị mật khẩu cũ
+  const handleSelectUser = (user) => {
+    setSelectedUser(user);
+    setFormData({
+      name: user.name || '',
+      email: user.email || '',
+      role: user.role || 'student'
+    });
     setIsEditing(true);
   };
 
-  // Reset form về trạng thái ban đầu
   const resetForm = () => {
-    setFormData({ id: null, name: '', email: '', password: '', role: 'user' });
+    setFormData({
+      name: '',
+      email: '',
+      role: 'student'
+    });
     setIsEditing(false);
+    setSelectedUser(null);
   };
 
-  if (loading) {
-    return <div>Đang tải...</div>;
-  }
-
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+  const getRoleLabel = (role) => {
+    switch (role) {
+      case 'ADMIN':
+        return 'Quản trị viên';
+      case 'TEACHER':
+        return 'Giáo viên';
+      case 'STUDENT':
+      default:
+        return 'Học sinh';
+    }
+  };
   return (
     <div className="user-manager">
-      <h2>Quản lý người dùng</h2>
-      <div className="user-list">
-        {users.map(user => (
-          <div key={user.id} className="user-card">
-            <h3>{user.name}</h3>
-            <p>Email: {user.email}</p>
-            <p>Vai trò: {user.role}</p>
-            <p>Trạng thái: {user.status}</p>
+      <div className="user-manager-header">
+        <h2>Quản lý người dùng</h2>
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Tìm kiếm người dùng..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+          <i className="fas fa-search search-icon"></i>
+        </div>
+      </div>
+
+      <div className="user-content">
+        <div className="user-list-container">
+          <div className="user-list-header">
+            <h3>Danh sách người dùng</h3>
+            <button className="btn-add" onClick={() => { resetForm(); setIsEditing(false); }}>
+              <i className="fas fa-plus"></i> Thêm mới
+            </button>
           </div>
-        ))}
+
+          {loading ? (
+            <div className="loading-message">Đang tải danh sách người dùng...</div>
+          ) : error ? (
+            <div className="error-message">{error}</div>
+          ) : (
+            <div className="user-list">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Tên</th>
+                    <th>Email</th>
+                    <th>Vai trò</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredUsers.length === 0 ? (
+                    <tr>
+                      <td colSpan="4" className="no-data">Không có dữ liệu người dùng</td>
+                    </tr>
+                  ) : (
+                    filteredUsers.map(user => (
+                      <tr key={user._id}>
+                        <td>{user.username}</td>
+                        <td>{user.email}</td>
+                        <td>{getRoleLabel(user.roles[0].name)}</td>
+
+                        <td className="actions">
+                          <button onClick={() => handleSelectUser(user)} className="btn-edit">
+                            <i className="fas fa-edit"></i>
+                          </button>
+                          <button onClick={() => handleDeleteUser(user._id)} className="btn-delete">
+                            <i className="fas fa-trash-alt"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        <div className="user-form-container">
+          <h3>{isEditing ? 'Cập nhật người dùng' : 'Thêm người dùng mới'}</h3>
+          <form className="user-form">
+            <div className="form-group">
+              <label>Tên người dùng</label>
+              <input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>Họ và tên</label>
+              <input
+                type="text"
+                name="fullname"
+                value={formData.fullname}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>Email</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>Mật khẩu</label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>Vai trò</label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+              >
+                <option value="teacher">Giáo viên</option>
+              </select>
+            </div>
+            <div className="form-actions">
+              {isEditing ? (
+                <>
+                  <button type="button" onClick={handleUpdateUser} className="btn-save">
+                    Cập nhật
+                  </button>
+                  <button type="button" onClick={resetForm} className="btn-cancel">
+                    Hủy
+                  </button>
+                </>
+              ) : (
+                <button type="button" onClick={handleAddUser} className="btn-save">
+                  Thêm mới
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

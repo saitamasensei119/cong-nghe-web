@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
 import './LoginPage.css';
-
+import '../../services/AuthService'
+import { handleLogin } from '../../services/AuthService';
+import { jwtDecode } from 'jwt-decode';
 const LoginPage = ({ onLogin }) => {
-  const [credentials, setCredentials] = useState({ email: '', password: '' });
+  const navigate = useNavigate();
+  const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -22,11 +24,26 @@ const LoginPage = ({ onLogin }) => {
     setError('');
 
     try {
-      const response = await axios.post('/api/auth/login', credentials);
-      localStorage.setItem('token', response.data.token);
-      onLogin(response.data.user);
+      const response = await handleLogin(credentials);
+      console.log(response);
+      if (response.success === true) {
+
+        await localStorage.setItem('accessToken', response.data.token);
+        const decodedToken = jwtDecode(response.data.token);
+        localStorage.setItem('user', JSON.stringify(decodedToken));
+        onLogin(response.data.token);
+        // if (decodedToken.roles[0] === 'ADMIN') {
+        //   navigate('/admin')
+        // } else if (decodedToken.roles[0] === 'TEACHER') {
+        //   navigate('/teacher')
+        // } else if (decodedToken.roles[0] === 'STUDENT') {
+        //   navigate('/')
+        // }
+      }
+      navigate('/')
     } catch (err) {
-      setError(err.response?.data?.message || 'Email hoặc mật khẩu không đúng');
+      console.log(err)
+      setError(err.response?.message || 'username hoặc mật khẩu không đúng');
     } finally {
       setLoading(false);
     }
@@ -42,18 +59,18 @@ const LoginPage = ({ onLogin }) => {
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="username">username</label>
             <div className="input-group">
               <i className="fas fa-envelope"></i>
               <input
-                type="email"
-                id="email"
-                name="email"
-                value={credentials.email}
+                type="text"
+                id="username"
+                name="username"
+                value={credentials.username}
                 onChange={handleChange}
-                placeholder="Nhập email của bạn"
+                placeholder="Nhập username của bạn"
                 required
-                autoComplete="email"
+                autoComplete="username"
               />
             </div>
           </div>

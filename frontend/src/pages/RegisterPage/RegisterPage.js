@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import './RegisterPage.css';
+import { handleRegister } from '../../services/AuthService';
 
 const RegisterPage = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        name: '',
-        email: '',
+        username: '',
         password: '',
+        email: '',
         confirmPassword: ''
     });
     const [errors, setErrors] = useState({});
@@ -33,7 +34,7 @@ const RegisterPage = () => {
     const validateForm = () => {
         const newErrors = {};
 
-        if (!formData.name.trim()) {
+        if (!formData.username.trim()) {
             newErrors.name = 'Vui lòng nhập họ tên';
         }
 
@@ -58,20 +59,20 @@ const RegisterPage = () => {
     };
 
     const handleSubmit = async (e) => {
+        console.log('check username', formData.username)
         e.preventDefault();
 
         if (!validateForm()) return;
 
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:5000/api/auth/register', {
-                name: formData.name,
+            const response = await handleRegister({
+                username: formData.username,
                 email: formData.email,
-                password: formData.password,
-                role: 'student' // Mặc định đăng ký với vai trò học sinh
+                password: formData.password
             });
 
-            if (response.data.success) {
+            if (response.success) {
                 setSuccess(true);
                 // Hiển thị thông báo thành công
                 setErrors({});
@@ -115,13 +116,13 @@ const RegisterPage = () => {
                     <div className="form-group">
                         <input
                             type="text"
-                            name="name"
+                            name="username"
                             className="form-input"
                             placeholder=" "
-                            value={formData.name}
+                            value={formData.username}
                             onChange={handleChange}
                         />
-                        <label className="form-label">Họ và tên</label>
+                        <label className="form-label">Tên Đăng Nhập</label>
                         {errors.name && (
                             <div className="error-message">
                                 <i className="fas fa-exclamation-circle"></i>

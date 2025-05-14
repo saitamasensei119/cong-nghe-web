@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Navbar.css';
 
 const Navbar = ({ user, onLogout }) => {
@@ -7,7 +7,7 @@ const Navbar = ({ user, onLogout }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const location = useLocation();
-
+  const navigate = useNavigate();
   // Xử lý scroll để thay đổi style của navbar
   useEffect(() => {
     const handleScroll = () => {
@@ -36,6 +36,7 @@ const Navbar = ({ user, onLogout }) => {
   const handleLogout = () => {
     setIsUserMenuOpen(false);
     onLogout();
+    navigate('/login');
   };
 
   return (
