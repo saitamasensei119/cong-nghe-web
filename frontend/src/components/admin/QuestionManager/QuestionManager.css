@@ -1,23 +1,23 @@
-.exam-manager {
+.question-manager {
     padding: 20px;
 }
 
-.exam-manager-header {
+.question-manager-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
 }
 
-.exam-manager-title {
+.question-manager-title {
     font-size: 24px;
     font-weight: 600;
     color: var(--text-primary);
 }
 
-.add-exam-btn {
+.add-question-btn {
     padding: 10px 20px;
-    background: linear-gradient(135deg, #4CAF50, #45a049);
+    background: linear-gradient(135deg, #9C27B0, #7B1FA2);
     color: white;
     border: none;
     border-radius: 5px;
@@ -26,18 +26,18 @@
     transition: all 0.3s ease;
 }
 
-.add-exam-btn:hover {
+.add-question-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.exam-grid {
+.question-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
 }
 
-.exam-card {
+.question-card {
     background: white;
     border-radius: 10px;
     padding: 20px;
@@ -45,36 +45,35 @@
     transition: all 0.3s ease;
 }
 
-.exam-card:hover {
+.question-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-.exam-title {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 10px;
+.question-content {
+    font-size: 16px;
+    margin-bottom: 15px;
     color: var(--text-primary);
 }
 
-.exam-info {
+.question-info {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
 
-.exam-info-item {
+.question-info-item {
     display: flex;
     align-items: center;
     gap: 8px;
     color: var(--text-secondary);
 }
 
-.exam-info-item i {
+.question-info-item i {
     color: var(--primary-color);
 }
 
-.exam-actions {
+.question-actions {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
@@ -115,15 +114,15 @@
 }
 
 @media (max-width: 768px) {
-    .exam-manager {
+    .question-manager {
         padding: 15px;
     }
 
-    .exam-grid {
+    .question-grid {
         grid-template-columns: 1fr;
     }
 
-    .exam-manager-header {
+    .question-manager-header {
         flex-direction: column;
         gap: 15px;
         align-items: flex-start;

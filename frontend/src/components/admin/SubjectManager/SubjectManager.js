@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import './SubjectManager.css';
 const SubjectManager = () => {
   // State quản lý danh sách môn học
   const [subjects, setSubjects] = useState([]);
@@ -11,26 +11,31 @@ const SubjectManager = () => {
     description: ''
   });
   // State kiểm soát trạng thái loading
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   // State kiểm soát chế độ chỉnh sửa
   const [isEditing, setIsEditing] = useState(false);
 
   // Lấy danh sách môn học từ backend khi component mount
   useEffect(() => {
-    fetchSubjects();
-  }, []);
-
-  const fetchSubjects = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get('/api/subjects');
-      setSubjects(response.data);
-    } catch (error) {
-      console.error('Error fetching subjects:', error);
-    } finally {
+    // Simulate API call
+    setTimeout(() => {
+      setSubjects([
+        {
+          id: 1,
+          name: 'Toán học',
+          description: 'Môn học về số học và hình học',
+          totalExams: 15
+        },
+        {
+          id: 2,
+          name: 'Vật lý',
+          description: 'Môn học về các hiện tượng tự nhiên',
+          totalExams: 10
+        }
+      ]);
       setLoading(false);
-    }
-  };
+    }, 1000);
+  }, []);
 
   // Xử lý thay đổi input trong form
   const handleInputChange = (e) => {
@@ -47,7 +52,7 @@ const SubjectManager = () => {
       if (isEditing) {
         // Cập nhật môn học
         const response = await axios.put(`/api/subjects/${formData.id}`, formData);
-        setSubjects(subjects.map(subject => 
+        setSubjects(subjects.map(subject =>
           subject.id === formData.id ? response.data : subject
         ));
       } else {
@@ -89,6 +94,10 @@ const SubjectManager = () => {
     setIsEditing(false);
   };
 
+  if (loading) {
+    return <div>Đang tải...</div>;
+  }
+
   return (
     <div className="subject-manager">
       <h2>Quản lý môn học</h2>
@@ -120,28 +129,22 @@ const SubjectManager = () => {
       </form>
 
       {/* Danh sách môn học */}
-      {loading && <p>Đang tải...</p>}
       <div className="subject-list">
-        {subjects.length === 0 && !loading ? (
-          <p>Chưa có môn học nào.</p>
-        ) : (
-          subjects.map(subject => (
-            <div key={subject.id} className="subject-item">
-              <div className="subject-info">
-                <h3>{subject.name}</h3>
-                <p>{subject.description || 'Không có mô tả'}</p>
-              </div>
-              <div className="subject-actions">
-                <button onClick={() => handleEdit(subject)} disabled={loading}>
-                  Sửa
-                </button>
-                <button onClick={() => handleDelete(subject.id)} disabled={loading}>
-                  Xóa
-                </button>
-              </div>
+        {subjects.map(subject => (
+          <div key={subject.id} className="subject-card">
+            <h3>{subject.name}</h3>
+            <p>Mô tả: {subject.description}</p>
+            <p>Số bài thi: {subject.totalExams}</p>
+            <div className="subject-actions">
+              <button onClick={() => handleEdit(subject)} disabled={loading}>
+                Sửa
+              </button>
+              <button onClick={() => handleDelete(subject.id)} disabled={loading}>
+                Xóa
+              </button>
             </div>
-          ))
-        )}
+          </div>
+        ))}
       </div>
     </div>
   );
