@@ -32,5 +32,13 @@ public class Subject {
             inverseJoinColumns = @JoinColumn(name = "teacher_id")
     )
     private Set<User> teachers = new HashSet<>();
+    @ManyToMany
+    @JoinTable(
+            name = "subject_students",
+            joinColumns = @JoinColumn(name = "subject_id"),
+            inverseJoinColumns = @JoinColumn(name = "student_id")
+    )
+    private Set<User> students = new HashSet<>();
+
 
 }

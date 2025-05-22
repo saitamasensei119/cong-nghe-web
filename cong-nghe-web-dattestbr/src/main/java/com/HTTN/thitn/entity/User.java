@@ -45,4 +45,8 @@ public class User {
         return roles.stream()
                 .anyMatch(role -> role.getName().equalsIgnoreCase(roleName));
     }
+    @ManyToMany(mappedBy = "students")
+    @JsonIgnore
+    private Set<Subject> enrolledSubjects = new HashSet<>();
+
 }

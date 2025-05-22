@@ -10,7 +10,10 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SubjectService {
@@ -107,5 +110,59 @@ public class SubjectService {
     public List<Subject> getSubjectsByStatus(int status) {
         return subjectRepository.findByStatus(status);
     }
+    public boolean addStudentToSubject(Integer subjectId, Long studentId) {
+        Optional<Subject> subjectOpt = subjectRepository.findById(subjectId);
+        Optional<User> studentOpt = userRepository.findById(studentId);
+        if (subjectOpt.isEmpty() || studentOpt.isEmpty()) {
+            return false;
+        }
+
+        Subject subject = subjectOpt.get();
+        User student = studentOpt.get();
+
+        // Kiểm tra xem user có role STUDENT hay không
+        if (!student.hasRole("STUDENT")) {
+            return false; // hoặc ném exception nếu muốn
+        }
+
+        // Thêm học sinh vào môn học
+        subject.getStudents().add(student);
+        subjectRepository.save(subject);
+        return true;
+    }
+    public boolean removeStudentFromSubject(Integer subjectId, Long studentId) {
+        Optional<Subject> subjectOpt = subjectRepository.findById(subjectId);
+        Optional<User> studentOpt = userRepository.findById(studentId);
+        if (subjectOpt.isEmpty() || studentOpt.isEmpty()) {
+            return false;
+        }
+        Subject subject = subjectOpt.get();
+        User student = studentOpt.get();
+        boolean removed = subject.getStudents().remove(student);
+        if (removed) {
+            subjectRepository.save(subject);
+        }
+        return removed;
+    }
+
+    public List<User> getStudentsInSubject(Integer subjectId) {
+        Optional<Subject> subjectOpt = subjectRepository.findById(subjectId);
+        if (subjectOpt.isEmpty()) {
+            return null;
+        }
+        Subject subject = subjectOpt.get();
+        return new ArrayList<>(subject.getStudents());
+    }
+
+    public List<Subject> getSubjectsForStudent(Long studentId) {
+        Optional<User> studentOpt = userRepository.findById(studentId);
+        if (studentOpt.isEmpty()) {
+            return Collections.emptyList();
+        }
+        User student = studentOpt.get();
+        return new ArrayList<>(student.getSubjects());
+    }
+
+
 
 }

@@ -82,5 +82,36 @@ public class AdminSubjectController {
         subjectService.deleteSubject(id);
         return ResponseEntity.noContent().build();
     }
+    //admin thêm,xóa,tìm học sinh từ môn học
+    @PostMapping("/{subjectId}/students/{studentId}")
+    public ResponseEntity<?> addStudentToSubject(@PathVariable Integer subjectId, @PathVariable Long studentId) {
+        boolean added = subjectService.addStudentToSubject(subjectId, studentId);
+        if (added) {
+            return ResponseEntity.ok().body("Học sinh đã được thêm vào môn học.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy môn học hoặc học sinh.");
+        }
+    }
+
+    @DeleteMapping("/{subjectId}/students/{studentId}")
+    public ResponseEntity<?> removeStudentFromSubject(@PathVariable Integer subjectId, @PathVariable Long studentId) {
+        boolean removed = subjectService.removeStudentFromSubject(subjectId, studentId);
+        if (removed) {
+            return ResponseEntity.ok().body("Học sinh đã được xóa khỏi môn học.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy môn học hoặc học sinh.");
+        }
+    }
+
+    @GetMapping("/{subjectId}/students")
+    public ResponseEntity<?> getStudentsInSubject(@PathVariable Integer subjectId) {
+        List<User> students = subjectService.getStudentsInSubject(subjectId);
+        if (students == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy môn học.");
+        }
+        return ResponseEntity.ok(students);
+    }
+
+
 
 }
