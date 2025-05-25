@@ -94,15 +94,16 @@ public class AuthController {
     @PutMapping("/change-password")
     public ResponseEntity<ApiResponse<String>> changePassword(
             @RequestBody ChangePasswordRequest request, Principal principal) {
+    	try {
 
         String username = principal.getName();
-        try {
+        
             userService.changePassword(username, request.getOldPassword(), request.getNewPassword());
             return ResponseEntity.ok(new ApiResponse<>(true, "Mật khẩu đã được thay đổi thành công", null));
         } catch (BadCredentialsException e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), null));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(new ApiResponse<>(false, "Có lỗi xảy ra, vui lòng thử lại", null));
+            return ResponseEntity.status(500).body(new ApiResponse<>(false, "Có lỗi xảy dsadsadsaasdra, vui lòng thử lại", null));
         }
     }
 
