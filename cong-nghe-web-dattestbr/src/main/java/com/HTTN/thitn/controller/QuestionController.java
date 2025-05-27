@@ -2,6 +2,7 @@ package com.HTTN.thitn.controller;
 
 import com.HTTN.thitn.entity.Question;
 import com.HTTN.thitn.entity.User;
+import com.HTTN.thitn.security.CustomUserDetails;
 import com.HTTN.thitn.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,8 @@ public class QuestionController {
     public ResponseEntity<Question> addQuestionToExam(@PathVariable Integer examId,
                                                       @PathVariable Integer questionBankId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        User user = userDetails.getUser();
         Question question = questionService.addQuestionToExam(examId, questionBankId,user);
         return ResponseEntity.status(201).body(question);
     }
@@ -32,7 +34,8 @@ public class QuestionController {
     public ResponseEntity<Void> removeQuestionFromExam(@PathVariable Long examId,
                                                        @PathVariable Long questionId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        User user = userDetails.getUser();
         questionService.removeQuestionFromExam(examId,questionId,user);
         return ResponseEntity.noContent().build();  // Trả về HTTP status 204 No Content
     }
@@ -48,7 +51,8 @@ public class QuestionController {
     public ResponseEntity<String> autoGenerateExam(@PathVariable Integer examId,
                                                    @RequestParam(defaultValue = "10") int numberOfQuestions) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        User user = userDetails.getUser();
         questionService.autoGenerateExam(examId, numberOfQuestions, user);
         return ResponseEntity.ok("Tạo đề thi tự động thành công");
     }
@@ -57,7 +61,8 @@ public class QuestionController {
             @PathVariable Integer examId,
             @RequestBody Map<Integer, Integer> difficultyMap) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        User user = userDetails.getUser();
         questionService.autoGenerateExamWithDifficulty(examId, difficultyMap, user);
         return ResponseEntity.ok("Tạo đề thi ngẫu nhiên theo độ khó thành công");
     }
