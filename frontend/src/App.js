@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import Navbar from './components/Layout/Navbar/Navbar';
 import Footer from './components/Layout/Footer/Footer';
 import AppRoutes from './routes/Index';
-
+import 'antd/dist/reset.css';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -43,7 +43,12 @@ function App() {
     <Router>
       <Navbar user={user} onLogout={handleLogout} />
       <main className="content">
-        <AppRoutes user={user} onLogin={onLogin} onLogout={handleLogout} />
+
+       <Routes>
+          {AppRoutes({ user, onLogin, onLogout: handleLogout })}
+        </Routes>
+ 
+        
       </main>
       <Footer />
     </Router>
