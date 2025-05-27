@@ -4,6 +4,7 @@ import com.HTTN.thitn.dto.Request.ChoiceRequest;
 import com.HTTN.thitn.dto.Response.ChoiceResponse;
 import com.HTTN.thitn.entity.Choice;
 import com.HTTN.thitn.entity.User;
+import com.HTTN.thitn.security.CustomUserDetails;
 import com.HTTN.thitn.service.ChoiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,8 @@ public class ChoiceController {
     public ResponseEntity<ChoiceResponse> createChoice(@PathVariable Integer questionBankId,
                                                        @RequestBody ChoiceRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        User user = userDetails.getUser();
         Choice choice = new Choice();
         choice.setChoiceText(request.getChoiceText());
         choice.setIsCorrect(request.getIsCorrect());
@@ -37,7 +39,8 @@ public class ChoiceController {
     public ResponseEntity<Choice> updateChoice(@PathVariable Integer id,
                                                @RequestBody Choice choice) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        User user = userDetails.getUser();
         Choice updatedChoice = choiceService.updateChoice(id, choice, user);
         return ResponseEntity.ok(updatedChoice);
     }
@@ -45,7 +48,8 @@ public class ChoiceController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteChoice(@PathVariable Integer id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        User user = userDetails.getUser();
 
         choiceService.deleteChoice(id, user);
         return ResponseEntity.noContent().build();

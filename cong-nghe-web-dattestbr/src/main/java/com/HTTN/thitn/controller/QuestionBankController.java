@@ -4,13 +4,16 @@ import com.HTTN.thitn.entity.QuestionBank;
 import com.HTTN.thitn.entity.User;
 import com.HTTN.thitn.security.CustomUserDetails;
 import com.HTTN.thitn.service.QuestionBankService;
+import jakarta.validation.constraints.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -20,20 +23,22 @@ public class QuestionBankController {
     private QuestionBankService questionBankService;
     //crud câu hỏi
     @PostMapping("/teacher/question-bank")
-    public ResponseEntity<QuestionBank> createQuestion(@RequestBody QuestionBank question) {
+    public ResponseEntity<Map<String, String>> createQuestion(@RequestBody QuestionBank question) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         User user = userDetails.getUser();
-
         QuestionBank createdQuestion = questionBankService.createQuestion(question, user);
-        return ResponseEntity.status(201).body(createdQuestion);
+        Map<String, String> response = new HashMap<>();
+        response.put("status", "success");
+        return ResponseEntity.status(201).body(response);
     }
 
     @PutMapping("/teacher/question-bank/{id}")
     public ResponseEntity<QuestionBank> updateQuestion(@PathVariable Integer id,
                                                        @RequestBody QuestionBank question) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        User user = userDetails.getUser();
         QuestionBank updatedQuestion = questionBankService.updateQuestion(id, question, user);
         return ResponseEntity.ok(updatedQuestion);
     }
@@ -42,7 +47,8 @@ public class QuestionBankController {
     @DeleteMapping("/teacher/question-bank/{id}")
     public ResponseEntity<Void> deleteQuestion(@PathVariable Integer id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        User user = userDetails.getUser();
         questionBankService.deleteQuestion(id,user );
         return ResponseEntity.noContent().build();
     }
