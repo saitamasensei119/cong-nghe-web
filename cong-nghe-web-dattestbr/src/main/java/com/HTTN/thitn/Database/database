@@ -35,6 +35,7 @@ CREATE TABLE subjects (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) UNIQUE NOT NULL,
   description TEXT,
+  status INT NOT NULL DEFAULT 0, -- 0 là 'PENDING', 1 là 'APPROVED', 2 là 'REJECTED'
   created_at TIMESTAMP DEFAULT NOW()
 );
 

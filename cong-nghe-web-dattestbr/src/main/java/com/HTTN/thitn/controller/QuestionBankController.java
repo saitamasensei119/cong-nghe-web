@@ -2,52 +2,59 @@ package com.HTTN.thitn.controller;
 
 import com.HTTN.thitn.entity.QuestionBank;
 import com.HTTN.thitn.entity.User;
+import com.HTTN.thitn.security.CustomUserDetails;
 import com.HTTN.thitn.service.QuestionBankService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/questions")
+@RequestMapping("/api")
 public class QuestionBankController {
 
     @Autowired
     private QuestionBankService questionBankService;
+    //crud câu hỏi
+    @PostMapping("/teacher/question-bank")
+    public ResponseEntity<QuestionBank> createQuestion(@RequestBody QuestionBank question) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        User user = userDetails.getUser();
 
-    @PostMapping
-    public ResponseEntity<QuestionBank> createQuestion(@RequestBody QuestionBank question,
-                                                       @RequestHeader("X-User-Id") Long userId,
-                                                       @RequestHeader("X-User-Role") String userRole) {
-        User createdBy = new User();
-        createdBy.setId(userId);
-        QuestionBank createdQuestion = questionBankService.createQuestion(question, createdBy, userRole);
+        QuestionBank createdQuestion = questionBankService.createQuestion(question, user);
         return ResponseEntity.status(201).body(createdQuestion);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/teacher/question-bank/{id}")
     public ResponseEntity<QuestionBank> updateQuestion(@PathVariable Integer id,
-                                                       @RequestBody QuestionBank question,
-                                                       @RequestHeader("X-User-Role") String userRole) {
-        QuestionBank updatedQuestion = questionBankService.updateQuestion(id, question, userRole);
+                                                       @RequestBody QuestionBank question) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        QuestionBank updatedQuestion = questionBankService.updateQuestion(id, question, user);
         return ResponseEntity.ok(updatedQuestion);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteQuestion(@PathVariable Integer id, @RequestHeader("X-User-Role") String userRole) {
-        questionBankService.deleteQuestion(id, userRole);
+
+    @DeleteMapping("/teacher/question-bank/{id}")
+    public ResponseEntity<Void> deleteQuestion(@PathVariable Integer id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        questionBankService.deleteQuestion(id,user );
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/teacher/question-bank/{id}")
     public ResponseEntity<QuestionBank> getQuestionById(@PathVariable Integer id) {
         QuestionBank question = questionBankService.getQuestionById(id);
         return ResponseEntity.ok(question);
     }
-
-    @GetMapping("/subject/{subjectId}")
-    public ResponseEntity<List<QuestionBank>> getQuestionsBySubject(@PathVariable Integer subjectId) {
+    //Lấy danh sách câu hỏi thuộc một môn học.
+    @GetMapping("/teacher/question-bank/subject/{subjectId}")
+    public ResponseEntity<List<QuestionBank>> getQuestionsBySubject(@PathVariable Long subjectId) {
         List<QuestionBank> questions = questionBankService.getQuestionsBySubject(subjectId);
         return ResponseEntity.ok(questions);
     }

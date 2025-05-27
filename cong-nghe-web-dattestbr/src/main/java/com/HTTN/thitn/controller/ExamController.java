@@ -47,7 +47,7 @@ public class ExamController {
     }
 
     @GetMapping("/subject/{subjectId}")
-    public ResponseEntity<List<Exam>> getExamsBySubject(@PathVariable Integer subjectId) {
+    public ResponseEntity<List<Exam>> getExamsBySubject(@PathVariable Long subjectId) {
         List<Exam> exams = examService.getExamsBySubject(subjectId);
         return ResponseEntity.ok(exams);
     }

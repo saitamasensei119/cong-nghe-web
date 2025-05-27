@@ -12,5 +12,5 @@ import java.util.Optional;
 public interface SubjectTeacherRepository extends JpaRepository<SubjectTeacher, Integer> {
     @Query("SELECT st.teacher FROM SubjectTeacher st WHERE st.subject.id = :subjectId")
     List<User> findTeachersBySubjectId(@Param("subjectId") Integer subjectId);
-    Optional<SubjectTeacher> findBySubjectIdAndTeacherId(Integer subjectId, Integer teacherId);
+    Optional<SubjectTeacher> findBySubjectIdAndTeacherId(Long subjectId, Long teacherId);
 }

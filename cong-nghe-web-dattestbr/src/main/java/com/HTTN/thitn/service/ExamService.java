@@ -63,7 +63,7 @@ public class ExamService {
                 .orElseThrow(() -> new EntityNotFoundException("Exam not found with id: " + id));
     }
 
-    public List<Exam> getExamsBySubject(Integer subjectId) {
+    public List<Exam> getExamsBySubject(Long subjectId) {
         Subject subject = subjectRepository.findById(subjectId)
                 .orElseThrow(() -> new EntityNotFoundException("Subject not found with id: " + subjectId));
         return examRepository.findBySubject(subject);
