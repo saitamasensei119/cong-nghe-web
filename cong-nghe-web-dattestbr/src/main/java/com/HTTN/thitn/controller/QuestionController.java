@@ -14,13 +14,13 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/teacher/questions")
+@RequestMapping("/api")
 public class QuestionController {
 
     @Autowired
     private QuestionService questionService;
     // thêm,xóa,get câu hỏi vào đề
-    @PostMapping("/exam/{examId}/question-bank/{questionBankId}")
+    @PostMapping("/teacher/questions/exam/{examId}/question-bank/{questionBankId}")
     public ResponseEntity<Question> addQuestionToExam(@PathVariable Integer examId,
                                                       @PathVariable Integer questionBankId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -30,7 +30,7 @@ public class QuestionController {
         return ResponseEntity.status(201).body(question);
     }
 
-    @DeleteMapping("/exam/{examId}/question/{questionId}")
+    @DeleteMapping("/teacher/questions/exam/{examId}/question/{questionId}")
     public ResponseEntity<Void> removeQuestionFromExam(@PathVariable Long examId,
                                                        @PathVariable Long questionId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -41,13 +41,13 @@ public class QuestionController {
     }
 
 
-    @GetMapping("/exam/{examId}")
+    @GetMapping("/teacher/questions/exam/{examId}")
     public ResponseEntity<List<Question>> getQuestionsByExam(@PathVariable Integer examId) {
         List<Question> questions = questionService.getQuestionsByExam(examId);
         return ResponseEntity.ok(questions);
     }
     // tạo đề =random câu hỏi
-    @PostMapping("/exam/{examId}/auto-generate")
+    @PostMapping("/teacher/questions/exam/{examId}/auto-generate")
     public ResponseEntity<String> autoGenerateExam(@PathVariable Integer examId,
                                                    @RequestParam(defaultValue = "10") int numberOfQuestions) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -56,7 +56,7 @@ public class QuestionController {
         questionService.autoGenerateExam(examId, numberOfQuestions, user);
         return ResponseEntity.ok("Tạo đề thi tự động thành công");
     }
-    @PostMapping("/exam/{examId}/auto-generate/by-difficulty")
+    @PostMapping("/teacher/questions/exam/{examId}/auto-generate/by-difficulty")
     public ResponseEntity<String> autoGenerateExamWithDifficulty(
             @PathVariable Integer examId,
             @RequestBody Map<Integer, Integer> difficultyMap) {
@@ -65,6 +65,16 @@ public class QuestionController {
         User user = userDetails.getUser();
         questionService.autoGenerateExamWithDifficulty(examId, difficultyMap, user);
         return ResponseEntity.ok("Tạo đề thi ngẫu nhiên theo độ khó thành công");
+    }
+    //hs lấy đề thi
+    @GetMapping("/student/questions/exam/{examId}")
+    public ResponseEntity<List<Question>> getQuestionsByExamForStudent(@PathVariable Integer examId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        User user = userDetails.getUser();
+
+        List<Question> questions = questionService.getQuestionsByExamForStudent(examId, user);
+        return ResponseEntity.ok(questions);
     }
 
 }

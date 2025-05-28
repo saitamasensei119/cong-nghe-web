@@ -93,7 +93,7 @@ public class QuestionBankService {
     }
     // kiểm tra độ khó
     private void validateQuestion(QuestionBank question) {
-        if (!List.of("multiple_choice", "true_false", "short_answer").contains(question.getQuestionType())) {
+        if (!List.of(1, 2, 3, 4).contains(question.getQuestionType())) {
             throw new IllegalArgumentException("Invalid question type");
         }
         if (question.getDifficulty() < 1 || question.getDifficulty() > 3) {

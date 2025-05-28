@@ -19,6 +19,9 @@ public class QuestionService {
     private QuestionRepository questionRepository;
 
     @Autowired
+    private SubjectStudentRepository subjectStudentRepository;
+
+    @Autowired
     private ExamRepository examRepository;
 
     @Autowired
@@ -60,6 +63,23 @@ public class QuestionService {
                 .orElseThrow(() -> new EntityNotFoundException("Exam not found with id: " + examId));
         return questionRepository.findByExam(exam);
     }
+    public List<Question> getQuestionsByExamForStudent(Integer examId, User user) {
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new EntityNotFoundException("Exam not found with id: " + examId));
+
+        Subject subject = exam.getSubject();
+
+        boolean isStudentEnrolled = subjectStudentRepository
+                .findBySubjectIdAndStudentId(subject.getId(), user.getId())
+                .isPresent();
+
+        if (!isStudentEnrolled) {
+            throw new SecurityException("Bạn không có quyền xem đề thi của môn học này.");
+        }
+
+        return questionRepository.findByExam(exam);
+    }
+
     // pthuc tạo đề bằng random câu hỏi
     @Transactional
     public void autoGenerateExam(Integer examId, int numberOfQuestions, User user) {

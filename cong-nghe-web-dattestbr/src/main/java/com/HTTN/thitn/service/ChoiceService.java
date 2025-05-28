@@ -23,12 +23,19 @@ public class ChoiceService {
     public Choice createChoice(Integer questionBankId, Choice choice, User user) {
         QuestionBank questionBank = questionBankRepository.findById(questionBankId)
                 .orElseThrow(() -> new EntityNotFoundException("Question not found with id: " + questionBankId));
-        if (!questionBank.getQuestionType().equals("multiple_choice") && !questionBank.getQuestionType().equals("true_false")) {
-            throw new IllegalArgumentException("Choices are only allowed for multiple_choice or true_false questions");
+        if (questionBank.getQuestionType() < 1 || questionBank.getQuestionType() > 3) {
+            throw new IllegalArgumentException("Invalid question type (must be between 1 and 3)");
         }
         if (!questionBank.getCreatedBy().getId().equals(user.getId())) {
             throw new SecurityException("Bạn không có quyền thêm lựa chọn cho câu hỏi này.");
         }
+        if (questionBank.getQuestionType() == 1 && Boolean.TRUE.equals(choice.getIsCorrect())) {
+            long correctCount = choiceRepository.countByQuestionBankAndIsCorrectTrue(questionBank);
+            if (correctCount >= 1) {
+                throw new IllegalStateException("Câu hỏi multiple choice chỉ được có một đáp án đúng.");
+            }
+        }
+
         choice.setQuestionBank(questionBank);
         return choiceRepository.save(choice);
     }
