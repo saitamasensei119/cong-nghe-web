@@ -185,5 +185,11 @@ public class UserService {
 
         userRepository.save(newTeacher);
     }
+
+    public UserDTO getUserProfile(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với username: " + username));
+        return convertToUserDTO(user);
+    }
 }
 
