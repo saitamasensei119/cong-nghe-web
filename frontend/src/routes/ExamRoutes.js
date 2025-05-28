@@ -7,7 +7,7 @@ import ProfilePage from '../pages/ProfilePage/ProfilePage';
 import ProtectedRoute from './ProtectedRoute';
 import ExamManagement from '../pages/ExamManagement/ExamManagement';
 import QuestionPage from '../pages/QuestionPage/QuestionPage';
-
+import ContestPage from '../pages/ContestPage/ContestPage';
 const ExamRoutes = ({ user, onLogout }) => ([
     <Route path="/" element={
         <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
@@ -39,6 +39,12 @@ const ExamRoutes = ({ user, onLogout }) => ([
             <QuestionPage/>
         </ProtectedRoute>
     } key="question-bank" />,
+    <Route path="/contest/:examId" element={
+        <ProtectedRoute allowedRoles={['teacher', 'admin']}>
+            <ContestPage />
+        </ProtectedRoute>
+    } key="contest" />,
+    
 ]);
 
 export default ExamRoutes;

@@ -3,6 +3,7 @@ import { Table, Button, Modal, Form, Input, message, Tooltip } from 'antd';
 import { EyeOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import { UserAddOutlined } from '@ant-design/icons';
 import './ExamManagement.css';
 
 const ExamManagement = () => {
@@ -12,7 +13,15 @@ const ExamManagement = () => {
     const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [form] = Form.useForm();
-
+    const [isAddStudentModal, setIsAddStudentModal] = useState(false);
+    const [studentId, setStudentId] = useState('');
+    const [isStudentListModal, setIsStudentListModal] = useState(false);
+    const [studentList, setStudentList] = useState([]);
+    const [loadingStudentList, setLoadingStudentList] = useState(false);
+    const [editingExam, setEditingExam] = useState(null);
+    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+    const [editForm] = Form.useForm();
+    const [deleteExamId, setDeleteExamId] = useState(null);
     useEffect(() => {
         fetchExams();
         // eslint-disable-next-line
@@ -22,7 +31,7 @@ const ExamManagement = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`/api/exams/subject/${subjectId}`, {
+            const response = await axios.get(`/api/teacher/exams/subject/${subjectId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
@@ -39,18 +48,118 @@ const ExamManagement = () => {
     const handleAddExam = async (values) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.post(`/api/teacher/subjects/${subjectId}/exam`, values, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
+            await axios.post(
+                `/api/teacher/exams`,
+                {
+                    ...values,
+                    subject: { id: Number(subjectId) }
                 },
-            });
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
             message.success('Thêm đề thi thành công');
             setIsModalVisible(false);
             form.resetFields();
             fetchExams();
         } catch (error) {
             message.error('Thêm đề thi thất bại');
+        }
+    };
+    const handleAddStudent = async () => {
+        if (!studentId) {
+            message.warning('Vui lòng nhập mã học sinh!');
+            return;
+        }
+        try {
+            const token = localStorage.getItem('token');
+            await axios.post(
+                `/api/teacher/subjects/${subjectId}/students/${studentId}`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            message.success('Thêm học sinh thành công');
+            setIsAddStudentModal(false);
+            setStudentId('');
+        } catch (error) {
+            message.error(
+                error.response?.data?.message || 'Thêm học sinh thất bại'
+            );
+        }
+    };
+    const handleShowStudentList = async () => {
+        setIsStudentListModal(true);
+        setLoadingStudentList(true);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get(`/api/teacher/subjects/${subjectId}/students`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            setStudentList(res.data);
+        } catch (error) {
+            message.error('Không thể lấy danh sách học sinh');
+        } finally {
+            setLoadingStudentList(false);
+        }
+    };
+    const handleDeleteExam = (examId) => {
+        setDeleteExamId(examId);
+    };
+    const confirmDeleteExam = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.delete(`/api/teacher/exams/${deleteExamId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            message.success('Xóa đề thi thành công');
+            setDeleteExamId(null);
+            fetchExams();
+        } catch (error) {
+            message.error('Xóa đề thi thất bại');
+        }
+    };
+    const handleEditExam = (exam) => {
+        setEditingExam(exam);
+        setIsEditModalVisible(true);
+        editForm.setFieldsValue({
+            title: exam.title,
+            description: exam.description,
+            duration: exam.duration,
+        });
+    };
+
+    const handleUpdateExam = async (values) => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.put(`/api/teacher/exams/${editingExam.id}`, {
+                ...values,
+                subject: { id: Number(subjectId) }
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            message.success('Cập nhật đề thi thành công');
+            setIsEditModalVisible(false);
+            setEditingExam(null);
+            fetchExams();
+        } catch (error) {
+            message.error('Cập nhật đề thi thất bại');
         }
     };
 
@@ -82,7 +191,7 @@ const ExamManagement = () => {
                         <Button
                             shape="circle"
                             icon={<EyeOutlined />}
-                            onClick={() => navigate(`/exams/${record.id}`)}
+                            onClick={() => navigate(`/contest/${record.id}`)}
                         />
                     </Tooltip>
                     <Tooltip title="Sửa">
@@ -90,7 +199,7 @@ const ExamManagement = () => {
                             shape="circle"
                             icon={<EditOutlined />}
                             style={{ margin: '0 8px' }}
-                            // onClick={() => ...}
+                            onClick={() => handleEditExam(record)}
                         />
                     </Tooltip>
                     <Tooltip title="Xóa">
@@ -98,7 +207,7 @@ const ExamManagement = () => {
                             shape="circle"
                             icon={<DeleteOutlined />}
                             danger
-                            // onClick={() => ...}
+                            onClick={() => handleDeleteExam(record.id)}
                         />
                     </Tooltip>
                 </div>
@@ -109,8 +218,24 @@ const ExamManagement = () => {
     return (
         <div className="exam-management">
             <div className="header">
-                <h1>Quản lý đề thi môn học</h1>
+                <h1>Quản lý môn học</h1>
                 <div>
+                    <Button
+                        className="add-exam-btn"
+                        icon={<UserAddOutlined />}
+                        type="dashed"
+                        onClick={() => setIsAddStudentModal(true)}
+                    >
+                        Thêm học sinh vào môn học
+                    </Button>
+                    <Button
+                        className="add-exam-btn"
+                        type="default"
+                        onClick={handleShowStudentList}
+                        style={{ marginRight: 8 }}
+                    >
+                        Xem danh sách học sinh
+                    </Button>
                     <Button
                         className="add-exam-btn"
                         type="primary"
@@ -123,6 +248,7 @@ const ExamManagement = () => {
                         className="add-exam-btn"
                         type="default"
                         onClick={() => navigate(`/question-bank/${subjectId}`)}
+                        style={{ marginRight: 8 }}
                     >
                         Ngân hàng câu hỏi
                     </Button>
@@ -172,6 +298,89 @@ const ExamManagement = () => {
                         </Button>
                     </Form.Item>
                 </Form>
+            </Modal>
+            <Modal
+                title="Thêm học sinh vào môn học"
+                open={isAddStudentModal}
+                onCancel={() => setIsAddStudentModal(false)}
+                onOk={handleAddStudent}
+                okText="Thêm"
+                cancelText="Hủy"
+            >
+                <Input
+                    placeholder="Nhập mã học sinh"
+                    value={studentId}
+                    onChange={e => setStudentId(e.target.value)}
+                    onPressEnter={handleAddStudent}
+                />
+            </Modal>
+            <Modal
+                title="Danh sách học sinh"
+                open={isStudentListModal}
+                onCancel={() => setIsStudentListModal(false)}
+                footer={null}
+            >
+                {loadingStudentList ? (
+                    <div>Đang tải...</div>
+                ) : (
+                    <ul>
+                        {studentList.length === 0 ? (
+                            <li>Không có học sinh nào.</li>
+                        ) : (
+                            studentList.map((student) => (
+                                <li key={student.id}>
+                                    <b>{student.fullname}</b> ({student.username}) - {student.email}
+                                </li>
+                            ))
+                        )}
+                    </ul>
+                )}
+            </Modal>
+            <Modal
+                title="Sửa đề thi"
+                open={isEditModalVisible}
+                onCancel={() => setIsEditModalVisible(false)}
+                footer={null}
+            >
+                <Form form={editForm} onFinish={handleUpdateExam} layout="vertical">
+                    <Form.Item
+                        name="title"
+                        label="Tên đề thi"
+                        rules={[{ required: true, message: 'Nhập tên đề thi!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name="description"
+                        label="Mô tả"
+                        rules={[{ required: true, message: 'Nhập mô tả!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name="duration"
+                        label="Thời gian (phút)"
+                        rules={[{ required: true, message: 'Nhập thời gian!' }]}
+                    >
+                        <Input type="number" />
+                    </Form.Item>
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit">
+                            Lưu thay đổi
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Modal>
+            <Modal
+                title="Xác nhận xoá"
+                open={!!deleteExamId}
+                onOk={confirmDeleteExam}
+                onCancel={() => setDeleteExamId(null)}
+                okText="Xoá"
+                okType="danger"
+                cancelText="Huỷ"
+            >
+                Bạn có chắc muốn xoá đề thi này?
             </Modal>
         </div>
     );

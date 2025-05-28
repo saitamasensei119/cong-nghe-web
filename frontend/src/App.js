@@ -40,18 +40,17 @@ function App() {
   };
 
   return (
-    <Router>
-      <Navbar user={user} onLogout={handleLogout} />
-      <main className="content">
-
-       <Routes>
-          {AppRoutes({ user, onLogin, onLogout: handleLogout })}
-        </Routes>
- 
-        
-      </main>
-      <Footer />
-    </Router>
+      <Router>
+        <div className="page-layout">
+          <Navbar user={user} onLogout={handleLogout} />
+          <main className="content">
+            <Routes>
+              {AppRoutes({ user, onLogin, onLogout: handleLogout })}
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </Router>
   );
 }
 
