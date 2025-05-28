@@ -59,9 +59,10 @@ public class SubjectService {
                 .orElseThrow(() -> new EntityNotFoundException("Subject not found with id: " + id));
     }
 
-    public List<Subject> getAllSubjects() {
-        return subjectRepository.findAll();
+    public List<Subject> getSubjectsByTeacher(User teacher) {
+        return subjectTeacherRepository.findSubjectsByTeacherId(teacher.getId());
     }
+
 
     // Phương thức để thêm giáo viên vào môn học
     public void assignTeacherToSubject(Long subjectId, Long teacherId) {

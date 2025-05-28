@@ -4,11 +4,14 @@ import com.HTTN.thitn.dto.Request.SubjectRequest;
 import com.HTTN.thitn.dto.Response.SubjectResponse;
 import com.HTTN.thitn.entity.Subject;
 import com.HTTN.thitn.entity.User;
+import com.HTTN.thitn.security.CustomUserDetails;
 import com.HTTN.thitn.service.SubjectService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,8 +56,11 @@ public class SubjectController {
     }
 
     @GetMapping("/teacher/subjects")
-    public ResponseEntity<List<SubjectResponse>> getAllSubjects() {
-        List<Subject> subjects = subjectService.getAllSubjects();
+    public ResponseEntity<List<SubjectResponse>> getSubjectsByTeacher() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        User user = userDetails.getUser();
+        List<Subject> subjects = subjectService.getSubjectsByTeacher(user);
         List<SubjectResponse> response = subjects.stream()
                 .map(SubjectResponse::new)
                 .collect(Collectors.toList());
