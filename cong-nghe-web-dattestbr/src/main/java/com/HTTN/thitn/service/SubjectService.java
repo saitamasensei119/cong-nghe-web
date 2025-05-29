@@ -1,5 +1,6 @@
 package com.HTTN.thitn.service;
 
+import com.HTTN.thitn.entity.Exam;
 import com.HTTN.thitn.entity.Subject;
 import com.HTTN.thitn.entity.SubjectTeacher;
 import com.HTTN.thitn.entity.User;
@@ -171,6 +172,22 @@ public class SubjectService {
     public List<Subject> getSubjectsByStudent(User student) {
         return subjectStudentRepository.findSubjectsByStudentId(student.getId());
     }
+
+    public List<Exam> getExamsOfSubjectForStudent(Long subjectId, User student) {
+        Optional<Subject> subjectOpt = subjectRepository.findById(subjectId);
+        if (subjectOpt.isEmpty()) {
+            throw new RuntimeException("Subject not found");
+        }
+
+        Subject subject = subjectOpt.get();
+
+        if (!subject.getStudents().contains(student)) {
+            throw new RuntimeException("Student is not registered for this subject");
+        }
+
+        return new ArrayList<>(subject.getExams());
+    }
+
 
 
 

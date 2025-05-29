@@ -1,5 +1,6 @@
 package com.HTTN.thitn.controller;
 
+import com.HTTN.thitn.dto.Response.QuestionInExamResponse;
 import com.HTTN.thitn.entity.Question;
 import com.HTTN.thitn.entity.User;
 import com.HTTN.thitn.security.CustomUserDetails;
@@ -68,13 +69,14 @@ public class QuestionController {
     }
     //hs lấy đề thi
     @GetMapping("/student/questions/exam/{examId}")
-    public ResponseEntity<List<Question>> getQuestionsByExamForStudent(@PathVariable Integer examId) {
+    public ResponseEntity<List<QuestionInExamResponse>> getQuestionsByExamForStudent(@PathVariable Integer examId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         User user = userDetails.getUser();
 
-        List<Question> questions = questionService.getQuestionsByExamForStudent(examId, user);
+        List<QuestionInExamResponse> questions = questionService.getQuestionsByExamForStudent(examId, user);
         return ResponseEntity.ok(questions);
     }
+
 
 }

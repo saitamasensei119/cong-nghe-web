@@ -2,6 +2,7 @@ package com.HTTN.thitn.controller;
 
 import com.HTTN.thitn.dto.Request.SubjectRequest;
 import com.HTTN.thitn.dto.Response.SubjectResponse;
+import com.HTTN.thitn.entity.Exam;
 import com.HTTN.thitn.entity.Subject;
 import com.HTTN.thitn.entity.User;
 import com.HTTN.thitn.security.CustomUserDetails;
@@ -84,7 +85,7 @@ public class SubjectController {
         }
         return ResponseEntity.ok(students);
     }
-
+    // hs gọi môn học, đề theo môn học
     @GetMapping("/student/subjects")
     public ResponseEntity<List<SubjectResponse>> getSubjectsForStudent() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -97,6 +98,15 @@ public class SubjectController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/student/subject/{subjectId}/exams")
+    public ResponseEntity<List<Exam>> getExamsForStudentSubject(@PathVariable Long subjectId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        User student = userDetails.getUser();
+
+        List<Exam> exams = subjectService.getExamsOfSubjectForStudent(subjectId, student);
+        return ResponseEntity.ok(exams);
+    }
 
 
 }

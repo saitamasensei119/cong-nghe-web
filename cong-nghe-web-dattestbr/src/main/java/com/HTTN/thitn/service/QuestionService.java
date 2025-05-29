@@ -1,6 +1,8 @@
 package com.HTTN.thitn.service;
 
+import com.HTTN.thitn.dto.Response.QuestionInExamResponse;
 import com.HTTN.thitn.entity.*;
+import com.HTTN.thitn.mapper.QuestionMapper;
 import com.HTTN.thitn.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class QuestionService {
@@ -28,6 +31,8 @@ public class QuestionService {
     private QuestionBankRepository questionBankRepository;
     @Autowired
     private SubjectTeacherRepository subjectTeacherRepository;
+    @Autowired
+    private QuestionMapper questionMapper;
 
     public Question addQuestionToExam(Integer examId, Integer questionBankId, User user) {
         Exam exam = examRepository.findById(examId).orElseThrow(() -> new EntityNotFoundException("Exam not found with id: " + examId));
@@ -69,7 +74,7 @@ public class QuestionService {
                 .orElseThrow(() -> new EntityNotFoundException("Exam not found with id: " + examId));
         return questionRepository.findByExam(exam);
     }
-    public List<Question> getQuestionsByExamForStudent(Integer examId, User user) {
+    public List<QuestionInExamResponse> getQuestionsByExamForStudent(Integer examId, User user) {
         Exam exam = examRepository.findById(examId)
                 .orElseThrow(() -> new EntityNotFoundException("Exam not found with id: " + examId));
 
@@ -83,8 +88,14 @@ public class QuestionService {
             throw new SecurityException("Bạn không có quyền xem đề thi của môn học này.");
         }
 
-        return questionRepository.findByExam(exam);
+        List<Question> questions = questionRepository.findByExam(exam);
+
+        // Map sang DTO để tránh trả về dư dữ liệu
+        return questions.stream()
+                .map(questionMapper::toResponse)
+                .collect(Collectors.toList());
     }
+
 
     // pthuc tạo đề bằng random câu hỏi
     @Transactional

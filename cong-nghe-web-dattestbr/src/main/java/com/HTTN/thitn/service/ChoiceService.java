@@ -73,4 +73,5 @@ public class ChoiceService {
                 .orElseThrow(() -> new EntityNotFoundException("Question not found with id: " + questionBankId));
         return choiceRepository.findByQuestionBank(questionBank);
     }
+
 }

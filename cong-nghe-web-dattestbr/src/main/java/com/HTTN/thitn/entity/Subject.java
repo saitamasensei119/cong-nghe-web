@@ -1,5 +1,6 @@
 package com.HTTN.thitn.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
@@ -47,6 +48,8 @@ public class Subject {
     )
     @EqualsAndHashCode.Exclude
     private Set<User> students = new HashSet<>();
-
+    @OneToMany(mappedBy = "subject")
+    @JsonManagedReference
+    private Set<Exam> exams;
 
 }
