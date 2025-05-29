@@ -36,6 +36,9 @@ public class QuestionService {
         if (!isAssigned) {
             throw new SecurityException("Bạn không có quyền thêm câu hỏi cho môn học này.");
         }
+        if (!questionBank.getSubject().getId().equals(exam.getSubject().getId())) {
+            throw new IllegalArgumentException("Câu hỏi không thuộc cùng môn học với đề thi.");
+        }
         Question question = new Question();
         question.setExam(exam);
         question.setQuestionBank(questionBank);
@@ -52,9 +55,12 @@ public class QuestionService {
         boolean isAssigned = subjectTeacherRepository
                     .findBySubjectIdAndTeacherId(question.getQuestionBank().getSubject().getId(), user.getId())
                     .isPresent();
-            if (!isAssigned) {
+        if (!isAssigned) {
                 throw new SecurityException("Bạn không có quyền xóa câu hỏi cho môn học này.");
             }
+        if (!question.getExam().getCreatedBy().getId().equals(user.getId())) {
+            throw new SecurityException("Chỉ người tạo đề mới có quyền xóa câu hỏi.");
+        }
         questionRepository.delete(question);
     }
 

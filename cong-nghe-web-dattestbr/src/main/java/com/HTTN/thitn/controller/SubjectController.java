@@ -85,14 +85,18 @@ public class SubjectController {
         return ResponseEntity.ok(students);
     }
 
-    @GetMapping("/student/{studentId}/subjects")
-    public ResponseEntity<List<SubjectResponse>> getSubjectsForStudent(@PathVariable Long studentId) {
-        List<Subject> subjects = subjectService.getSubjectsForStudent(studentId);
+    @GetMapping("/student/subjects")
+    public ResponseEntity<List<SubjectResponse>> getSubjectsForStudent() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        User user = userDetails.getUser();
+        List<Subject> subjects = subjectService.getSubjectsByStudent(user);
         List<SubjectResponse> response = subjects.stream()
                 .map(SubjectResponse::new)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(response);
     }
+
 
 
 }
