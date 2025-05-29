@@ -8,8 +8,10 @@ import ProtectedRoute from './ProtectedRoute';
 import ExamManagement from '../pages/ExamManagement/ExamManagement';
 import QuestionPage from '../pages/QuestionPage/QuestionPage';
 import ContestPage from '../pages/ContestPage/ContestPage';
+import HsSubjectPage from "../pages/HsSubjectPage/HsSubjectPage";
+import HsExamPage from "../pages/HsExamPage/HsExamPage";
 const ExamRoutes = ({ user, onLogout }) => ([
-    <Route path="/" element={
+    <Route path="/teacher" element={
         <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
             <ExamPage user={user} />
         </ProtectedRoute>
@@ -39,11 +41,22 @@ const ExamRoutes = ({ user, onLogout }) => ([
             <QuestionPage/>
         </ProtectedRoute>
     } key="question-bank" />,
-    <Route path="/contest/:examId" element={
+    <Route path="/contest/:examId/:subjectId" element={
         <ProtectedRoute allowedRoles={['teacher', 'admin']}>
             <ContestPage />
         </ProtectedRoute>
     } key="contest" />,
+    <Route path="/student" element={
+        <ProtectedRoute allowedRoles={['student']}>
+            <HsSubjectPage />
+        </ProtectedRoute>
+    } key="student" />,
+    <Route path="/student/exams/subject/:subjectId" element={
+        <ProtectedRoute allowedRoles={['student']}>
+            <HsExamPage />
+        </ProtectedRoute>
+    } key="student-exam" />
+
     
 ]);
 

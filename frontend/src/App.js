@@ -48,7 +48,7 @@ function App() {
               {AppRoutes({ user, onLogin, onLogout: handleLogout })}
             </Routes>
           </main>
-          <Footer />
+          {/*<Footer />*/}
         </div>
       </Router>
   );

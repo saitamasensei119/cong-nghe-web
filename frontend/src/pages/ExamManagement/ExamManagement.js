@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, message, Tooltip } from 'antd';
 import { EyeOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import axios from 'axios';
+
 import { useParams, useNavigate } from 'react-router-dom';
 import { UserAddOutlined } from '@ant-design/icons';
 import './ExamManagement.css';
+import axiosInstance from "../../services/axiosInstance";
 
 const ExamManagement = () => {
     const { subjectId } = useParams();
@@ -31,7 +32,7 @@ const ExamManagement = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`/api/teacher/exams/subject/${subjectId}`, {
+            const response = await axiosInstance.get(`/api/teacher/exams/subject/${subjectId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
@@ -48,7 +49,7 @@ const ExamManagement = () => {
     const handleAddExam = async (values) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.post(
+            await axiosInstance.post(
                 `/api/teacher/exams`,
                 {
                     ...values,
@@ -76,7 +77,7 @@ const ExamManagement = () => {
         }
         try {
             const token = localStorage.getItem('token');
-            await axios.post(
+            await axiosInstance.post(
                 `/api/teacher/subjects/${subjectId}/students/${studentId}`,
                 {},
                 {
@@ -100,7 +101,7 @@ const ExamManagement = () => {
         setLoadingStudentList(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get(`/api/teacher/subjects/${subjectId}/students`, {
+            const res = await axiosInstance.get(`/api/teacher/subjects/${subjectId}/students`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
@@ -119,7 +120,7 @@ const ExamManagement = () => {
     const confirmDeleteExam = async () => {
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`/api/teacher/exams/${deleteExamId}`, {
+            await axiosInstance.delete(`/api/teacher/exams/${deleteExamId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
@@ -145,7 +146,7 @@ const ExamManagement = () => {
     const handleUpdateExam = async (values) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.put(`/api/teacher/exams/${editingExam.id}`, {
+            await axiosInstance.put(`/api/teacher/exams/${editingExam.id}`, {
                 ...values,
                 subject: { id: Number(subjectId) }
             }, {
@@ -191,7 +192,7 @@ const ExamManagement = () => {
                         <Button
                             shape="circle"
                             icon={<EyeOutlined />}
-                            onClick={() => navigate(`/contest/${record.id}`)}
+                            onClick={() => navigate(`/contest/${record.id}/${subjectId}`)}
                         />
                     </Tooltip>
                     <Tooltip title="Sửa">
@@ -244,14 +245,7 @@ const ExamManagement = () => {
                     >
                         Tạo đề thi
                     </Button>
-                    <Button
-                        className="add-exam-btn"
-                        type="default"
-                        onClick={() => navigate(`/question-bank/${subjectId}`)}
-                        style={{ marginRight: 8 }}
-                    >
-                        Ngân hàng câu hỏi
-                    </Button>
+
                 </div>
             </div>
             <div className="table-container">
