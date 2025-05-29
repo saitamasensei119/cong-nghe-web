@@ -4,6 +4,7 @@ import com.HTTN.thitn.entity.Subject;
 import com.HTTN.thitn.entity.SubjectTeacher;
 import com.HTTN.thitn.entity.User;
 import com.HTTN.thitn.repository.SubjectRepository;
+import com.HTTN.thitn.repository.SubjectStudentRepository;
 import com.HTTN.thitn.repository.SubjectTeacherRepository;
 import com.HTTN.thitn.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -25,6 +26,8 @@ public class SubjectService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private SubjectStudentRepository subjectStudentRepository;
     @Autowired
     private SubjectTeacherRepository subjectTeacherRepository;
 
@@ -165,14 +168,10 @@ public class SubjectService {
         return new ArrayList<>(subject.getStudents());
     }
 
-    public List<Subject> getSubjectsForStudent(Long studentId) {
-        Optional<User> studentOpt = userRepository.findById(studentId);
-        if (studentOpt.isEmpty()) {
-            return Collections.emptyList();
-        }
-        User student = studentOpt.get();
-        return new ArrayList<>(student.getSubjects());
+    public List<Subject> getSubjectsByStudent(User student) {
+        return subjectStudentRepository.findSubjectsByStudentId(student.getId());
     }
+
 
 
 
