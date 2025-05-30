@@ -1,5 +1,6 @@
 package com.HTTN.thitn.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -16,6 +17,7 @@ public class AnswerChoice {
     @ManyToOne
     @MapsId("answerId")
     @JoinColumn(name = "answer_id")
+    @JsonBackReference
     private Answer answer;
 
     @ManyToOne

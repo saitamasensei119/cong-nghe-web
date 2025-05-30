@@ -83,4 +83,11 @@ public class SubmissionService {
     public List<Submission> getSubmissionsByUser(User user) {
         return submissionRepository.findByUser(user);
     }
+    public List<Submission> getSubmittedSubmissionsByUser(User user) {
+        return submissionRepository.findByUserAndStatus(user, 1);
+    }
+    public List<Submission> getSubmissionsByExamAndUser(Integer examId, User user) {
+        return submissionRepository.findByExamIdAndUserId(examId, user.getId());
+    }
+
 }

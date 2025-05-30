@@ -55,4 +55,24 @@ public class SubmissionController {
         List<Submission> submissions = submissionService.getSubmissionsByExam(examId);
         return ResponseEntity.ok(submissions);
     }
+    @GetMapping("/student/submissions/submitted")
+    public ResponseEntity<List<Submission>> getSubmittedSubmissionsByStudent() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        User user = userDetails.getUser();
+
+        List<Submission> submissions = submissionService.getSubmittedSubmissionsByUser(user);
+        return ResponseEntity.ok(submissions);
+    }
+    @GetMapping("/student/submissions/exam/{examId}")
+    public ResponseEntity<List<Submission>> getStudentSubmissionsByExam(@PathVariable Integer examId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        User user = userDetails.getUser();
+
+        List<Submission> submissions = submissionService.getSubmissionsByExamAndUser(examId, user);
+        return ResponseEntity.ok(submissions);
+    }
+
+
 }

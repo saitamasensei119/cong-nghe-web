@@ -1,5 +1,6 @@
 package com.HTTN.thitn.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -27,6 +28,7 @@ public class Answer {
     @JoinColumn(name = "chosen_choice_id")
     private Choice chosenChoice;
     @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<AnswerChoice> selectedAnswerChoices = new ArrayList<>();
 
     // Lấy danh sách các Choice được chọn (cho đa lựa chọn)

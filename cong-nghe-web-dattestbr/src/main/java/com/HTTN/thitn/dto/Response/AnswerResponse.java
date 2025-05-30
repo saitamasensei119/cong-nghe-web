@@ -4,12 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class AnswerResponse {
-    private Integer id;
+    private Integer answerId;
+    private Long questionId;
     private Integer submissionId;
-    private Integer questionId;
-    private Integer chosenChoiceId;
+
+    private ChoiceResponse chosenChoice;
+
+    private List<ChoiceResponse> selectedChoices;
 }

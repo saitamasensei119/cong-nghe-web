@@ -11,4 +11,6 @@ public interface SubmissionRepository extends JpaRepository<Submission, Integer>
     List<Submission> findByExam(Exam exam);
     List<Submission> findByUser(User user);
     List<Submission> findByExamAndUser(Exam exam, User user);
+    List<Submission> findByUserAndStatus(User user, Integer status);
+    List<Submission> findByExamIdAndUserId(Integer examId, Long userId);
 }
