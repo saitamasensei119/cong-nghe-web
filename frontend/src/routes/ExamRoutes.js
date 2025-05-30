@@ -10,6 +10,8 @@ import QuestionPage from '../pages/QuestionPage/QuestionPage';
 import ContestPage from '../pages/ContestPage/ContestPage';
 import HsSubjectPage from "../pages/HsSubjectPage/HsSubjectPage";
 import HsExamPage from "../pages/HsExamPage/HsExamPage";
+import HsTakeExamPage from "../pages/HsTakeExamPage/HsTakeExamPage";
+import HsTakeScorePage from "../pages/HsTakeScorePage/HsTakeScorePage";
 const ExamRoutes = ({ user, onLogout }) => ([
     <Route path="/teacher" element={
         <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
@@ -51,11 +53,22 @@ const ExamRoutes = ({ user, onLogout }) => ([
             <HsSubjectPage />
         </ProtectedRoute>
     } key="student" />,
-    <Route path="/student/exams/subject/:subjectId" element={
+    <Route path="/student/subject/:subjectId/exams" element={
         <ProtectedRoute allowedRoles={['student']}>
             <HsExamPage />
         </ProtectedRoute>
-    } key="student-exam" />
+    } key="student-exam" />,
+    <Route path="/student/question/exam/:examId" element={
+        <ProtectedRoute allowedRoles={['student']}>
+            <HsTakeExamPage />
+        </ProtectedRoute>
+    } key="student-take-exam" />,
+    <Route path="/student/question/exam/:examId/score" element={
+        <ProtectedRoute allowedRoles={['student']}>
+            <HsTakeScorePage />
+        </ProtectedRoute>
+    } key="student-take-score" />,
+
 
     
 ]);

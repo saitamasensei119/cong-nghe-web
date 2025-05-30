@@ -141,40 +141,47 @@ const ExamPage = () => {
             <p className="no-subjects">Không có môn học nào.</p>
         ) : (
             <div className="subject-list">
-              {subjects.map((subject) => (
-                  <div
-                      className="subject-card"
-                      key={subject.id}
-                      onClick={() => {
-                        navigate(`/exams/subject/${subject.id}`);
-                      }}
-                  >
-                    <div className="subject-card-img">
-                      <img
-                          src={getSubjectImage(subject.name)}
-                          alt={subject.name}
-                      />
-                    </div>
-                    <div className="subject-card-content">
-                      <div className="subject-card-title">
-                        {subject.name}
-                        <EditOutlined
-                            className="edit-icon"
-                            style={{ color: '#1890ff', fontSize: 18, marginLeft: 8, cursor: 'pointer' }}
-                            title="Sửa môn học"
-                            onClick={e => {
-                              e.stopPropagation();
-                              openEditForm(subject);
-                            }}
-                        />
+              {subjects
+                  .slice() // tạo bản sao để không thay đổi state gốc
+                  .sort((a, b) => {
+                    const codeA = (a.code || a.id).toString();
+                    const codeB = (b.code || b.id).toString();
+                    return codeA.localeCompare(codeB, undefined, { numeric: true });
+                  })
+                  .map((subject) => (
+                      <div
+                          className="subject-card"
+                          key={subject.id}
+                          onClick={() => {
+                            navigate(`/exams/subject/${subject.id}`);
+                          }}
+                      >
+                        <div className="subject-card-img">
+                          <img
+                              src={getSubjectImage(subject.name)}
+                              alt={subject.name}
+                          />
+                        </div>
+                        <div className="subject-card-content">
+                          <div className="subject-card-title">
+                            {subject.name}
+                            <EditOutlined
+                                className="edit-icon"
+                                style={{ color: '#1890ff', fontSize: 18, marginLeft: 8, cursor: 'pointer' }}
+                                title="Sửa môn học"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  openEditForm(subject);
+                                }}
+                            />
+                          </div>
+                          <div className="subject-card-desc">{subject.description}</div>
+                          <div className="subject-card-meta">
+                            <span>Mã môn: {subject.code || subject.id}</span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="subject-card-desc">{subject.description}</div>
-                      <div className="subject-card-meta">
-                        <span>Mã môn: {subject.code || subject.id}</span>
-                      </div>
-                    </div>
-                  </div>
-              ))}
+                  ))}
             </div>
         )}
       </div>
