@@ -70,7 +70,7 @@ const HsReadyPage = () => {
         },
 
     ];
-
+// return
     return (
         <>
             <div className="hs-ready-container">
