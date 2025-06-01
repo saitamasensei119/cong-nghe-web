@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate,useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axiosInstance from "../../services/axiosInstance";
 import './ContestPage.css';
 import { DeleteOutlined, PlusCircleOutlined, DatabaseOutlined } from '@ant-design/icons';
@@ -19,7 +19,7 @@ const questionTypeMap = {
 };
 
 const ContestPage = () => {
-    const { examId,subjectId } = useParams();
+    const { examId, subjectId } = useParams();
     const [questions, setQuestions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [questionIdInput, setQuestionIdInput] = useState('');

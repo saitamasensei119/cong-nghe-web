@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axiosInstance from "../../services/axiosInstance";
 import './HsSubjectPage.css';
 import { useNavigate } from 'react-router-dom';
-import { EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button } from 'antd';
+import { EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Input } from 'antd';
 // Hàm lấy đường dẫn ảnh từ thư mục public/images
 const getSubjectImage = (name) => {
     const key = name
@@ -34,6 +34,7 @@ const ExamPage = () => {
     const [showForm, setShowForm] = useState(false);
     const [editSubject, setEditSubject] = useState(null);
     const [formData, setFormData] = useState({ name: '', description: '' });
+    const [searchTerm, setSearchTerm] = useState('');
 
     const navigate = useNavigate();
     const openAddForm = () => {
@@ -51,7 +52,7 @@ const ExamPage = () => {
         const token = localStorage.getItem('token');
         try {
             if (editSubject) {
-                
+
                 const res = await axiosInstance.put(
                     `/api/teacher/subjects/${editSubject.id}`,
                     formData,
@@ -59,7 +60,7 @@ const ExamPage = () => {
                 );
                 setSubjects(subjects.map(s => s.id === editSubject.id ? res.data : s));
             } else {
-                
+
                 const res = await axiosInstance.post(
                     '/api/teacher/subjects',
                     formData,
@@ -112,16 +113,30 @@ const ExamPage = () => {
         return () => { isMounted = false; };
     }, []);
 
+    const filteredSubjects = subjects.filter(subject =>
+        subject.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
         <div className={`exam-container main-content ep${showForm ? ' modal-open' : ''}`}>
             <h1 className="subject-title">Danh sách môn học của tôi</h1>
 
-            {subjects.length === 0 ? (
+            <div className="search-container" style={{ marginBottom: '20px' }}>
+                <Input
+                    placeholder="Tìm kiếm môn học..."
+                    prefix={<SearchOutlined />}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{ width: '300px' }}
+                />
+            </div>
+
+            {filteredSubjects.length === 0 ? (
                 <p className="no-subjects">Không có môn học nào.</p>
             ) : (
                 <div className="subject-list">
-                    {subjects
-                        .slice() 
+                    {filteredSubjects
+                        .slice()
                         .sort((a, b) => {
                             const codeA = (a.code || a.id).toString();
                             const codeB = (b.code || b.id).toString();

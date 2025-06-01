@@ -89,10 +89,6 @@ const HomePage = () => {
             <i className="fas fa-tachometer-alt"></i>
             <span>Bảng điều khiển Admin</span>
           </button>
-          <button className="action-btn info" onClick={() => navigate('/manage-users')}>
-            <i className="fas fa-user-cog"></i>
-            <span>Quản lý người dùng</span>
-          </button>
         </div>
       </div>
     </div>

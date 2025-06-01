@@ -15,16 +15,13 @@ const AdminDashboard = () => {
     totalTeachers: 0,
     pendingSubjects: 0
   });
-  const [notifications, setNotifications] = useState(3);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
-    // Fetch stats and activities
     fetchStats();
-
-    // Fetch users from database
     fetchUsers();
   }, []);
 
@@ -34,7 +31,6 @@ const AdminDashboard = () => {
       const responseStudents = await fetchListUsers('student');
       const responseTeachers = await fetchListUsers('teacher');
 
-      // Add role information to each user
       const studentsWithRole = responseStudents.data.map(user => ({
         ...user,
         roles: [{ name: 'STUDENT' }]
@@ -55,10 +51,8 @@ const AdminDashboard = () => {
     }
   };
 
-  // Fetch real statistics from backend
   const fetchStats = async () => {
     try {
-      // Fetch users by role to get real counts
       const [studentsResponse, teachersResponse, pendingSubjectsResponse] = await Promise.all([
         fetchListUsers('student'),
         fetchListUsers('teacher'),
@@ -75,12 +69,8 @@ const AdminDashboard = () => {
         totalTeachers,
         pendingSubjects
       });
-
-      // Update notifications count based on pending subjects
-      setNotifications(pendingSubjects);
     } catch (error) {
       console.error('Error fetching stats:', error);
-      // Fallback to mock data
       setStats({
         totalUsers: 1250,
         totalStudents: 1000,
@@ -92,11 +82,6 @@ const AdminDashboard = () => {
 
   const handleMenuClick = (menu) => {
     setActiveMenu(menu);
-  };
-
-  const handleLogout = () => {
-    // Add logout logic here
-    navigate('/login');
   };
 
   const renderContent = () => {
@@ -155,74 +140,61 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard">
-      {/* Sidebar */}
-      <div className="sidebar">
+      <div className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
           <h2>Admin Panel</h2>
-          <p>Quản lý hệ thống</p>
+          <button
+            className="collapse-btn"
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          >
+            <i className={`fas fa-chevron-${sidebarCollapsed ? 'right' : 'left'}`}></i>
+          </button>
         </div>
-        <ul className="sidebar-menu">
-          <li
+        <div className="sidebar-menu">
+          <div
             className={`menu-item ${activeMenu === 'dashboard' ? 'active' : ''}`}
             onClick={() => handleMenuClick('dashboard')}
           >
             <i className="fas fa-home"></i>
-            Dashboard
-          </li>
-          <li
+            {!sidebarCollapsed && <span>Dashboard</span>}
+          </div>
+          <div
             className={`menu-item ${activeMenu === 'users' ? 'active' : ''}`}
             onClick={() => handleMenuClick('users')}
           >
             <i className="fas fa-users"></i>
-            Quản lý người dùng
-          </li>
-          <li
+            {!sidebarCollapsed && <span>Quản lý người dùng</span>}
+          </div>
+          <div
             className={`menu-item ${activeMenu === 'subjects' ? 'active' : ''}`}
             onClick={() => handleMenuClick('subjects')}
           >
             <i className="fas fa-book"></i>
-            Quản lý môn học
-            {stats.pendingSubjects > 0 && (
-              <span className="menu-badge">{stats.pendingSubjects}</span>
+            {!sidebarCollapsed && (
+              <>
+                <span>Quản lý môn học</span>
+                {stats.pendingSubjects > 0 && (
+                  <span className="menu-badge">{stats.pendingSubjects}</span>
+                )}
+              </>
             )}
-          </li>
-        </ul>
+          </div>
+        </div>
       </div>
 
-      {/* Header */}
-      <header className="header">
-        <div className="header-left">
-          <button
-            className="back-to-home-btn"
-            onClick={() => navigate('/home')}
-            title="Quay lại trang chủ"
-          >
-            <i className="fas fa-home"></i>
-            <span>Trang chủ</span>
-          </button>
-          <h1>Dashboard</h1>
-        </div>
-        {/* <div className="header-right">
-          <div className="notification-icon">
-            <i className="fas fa-bell"></i>
-            {notifications > 0 && (
-              <span className="notification-badge">{notifications}</span>
-            )}
+      <div className="main-wrapper">
+        <header className="header">
+          <div className="header-left">
+            <h1>{activeMenu === 'dashboard' ? 'Dashboard' :
+              activeMenu === 'users' ? 'Quản lý người dùng' :
+                'Quản lý môn học'}</h1>
           </div>
-          <div className="user-menu" onClick={handleLogout}>
-            <div className="user-avatar">A</div>
-            <div className="user-info">
-              <span className="user-name">Admin</span>
-              <span className="user-role">Quản trị viên</span>
-            </div>
-          </div>
-        </div> */}
-      </header>
+        </header>
 
-      {/* Main Content */}
-      <main className="main-content">
-        {renderContent()}
-      </main>
+        <main className="main-content">
+          {renderContent()}
+        </main>
+      </div>
     </div>
   );
 };

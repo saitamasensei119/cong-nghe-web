@@ -1,7 +1,9 @@
 .subject-list {
     display: grid;
-    grid-template-columns: repeat(5, minmax(300px, 1fr)); /* 5 cột, card to hơn */
-    gap: 36px 32px; /* Tăng khoảng cách giữa các card */
+    grid-template-columns: repeat(5, minmax(300px, 1fr));
+    /* 5 cột, card to hơn */
+    gap: 36px 32px;
+    /* Tăng khoảng cách giữa các card */
     width: 100%;
     max-width: 95%;
     margin: 0 auto;
@@ -15,7 +17,7 @@
 .subject-card {
     background: #fff;
     border-radius: 22px;
-    box-shadow: 0 6px 32px rgba(52, 99, 255, 0.10), 0 1.5px 8px rgba(0,0,0,0.06);
+    box-shadow: 0 6px 32px rgba(52, 99, 255, 0.10), 0 1.5px 8px rgba(0, 0, 0, 0.06);
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -31,7 +33,7 @@
 
 .subject-card:hover {
     transform: translateY(-10px) scale(1.04);
-    box-shadow: 0 12px 40px rgba(52, 99, 255, 0.18), 0 2px 12px rgba(0,0,0,0.10);
+    box-shadow: 0 12px 40px rgba(52, 99, 255, 0.18), 0 2px 12px rgba(0, 0, 0, 0.10);
     border-color: #2563eb;
 }
 
@@ -77,6 +79,7 @@
         gap: 28px 16px;
     }
 }
+
 @media (max-width: 900px) {
     .subject-list {
         grid-template-columns: repeat(2, minmax(180px, 1fr));
@@ -84,29 +87,52 @@
         padding: 0 8px;
         max-width: 100%;
     }
+
     .subject-card-img img {
         height: 120px;
     }
+
     .subject-card {
         max-width: 100%;
         min-width: 0;
     }
 }
+
 @media (max-width: 600px) {
     .main-content {
         margin-top: 40px;
         padding-bottom: 12px;
     }
+
     .subject-title {
         font-size: 1.2rem;
         margin-bottom: 12px;
     }
+
     .subject-list {
         grid-template-columns: 1fr;
         gap: 14px 0;
         padding: 0 2px;
     }
+
     .subject-card-content {
         padding: 10px 8px 8px 8px;
     }
+}
+
+.search-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.search-container .ant-input-affix-wrapper {
+    border-radius: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.search-container .ant-input-affix-wrapper:hover,
+.search-container .ant-input-affix-wrapper:focus {
+    border-color: #1890ff;
+    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
 }

@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import { EyeOutlined,EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { Table, Button, Popconfirm, Modal, Form, Input, Select, message,Tooltip } from 'antd';
+import { EyeOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { Table, Button, Popconfirm, Modal, Form, Input, Select, message, Tooltip } from 'antd';
 import './QuestionPage.css';
 import axiosInstance from "../../services/axiosInstance";
 const { Option } = Select;
@@ -262,7 +262,6 @@ const QuestionPage = () => {
             key: 'questionType',
             width: 150,
             align: 'center',
-            sorter: (a, b) => a.questionType.localeCompare(b.questionType),
             render: (type) => (
                 <span className={`type-tag type-${type}`}>{questionTypeMap[type] || type}</span>
             ),
@@ -284,7 +283,6 @@ const QuestionPage = () => {
             key: 'createdBy',
             width: 160,
             align: 'center',
-            sorter: (a, b) => a.createdBy?.fullname.localeCompare(b.createdBy?.fullname),
             render: (_, record) => record.createdBy?.fullname || '---',
         },
         {
@@ -294,34 +292,34 @@ const QuestionPage = () => {
             align: 'center',
             render: (_, record) => (
                 <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
-
                     <Tooltip title="Xem chi tiết">
                         <Button
                             type="text"
                             icon={<EyeOutlined style={{ color: '#1890ff', fontSize: 18 }} />}
                             onClick={() => handleViewDetail(record)}
-                            title="Xem chi tiết"
                         />
                     </Tooltip>
-                    <Button
-                        type="text"
-                        icon={<EditOutlined style={{ color: '#1890ff', fontSize: 18 }} />}
-                        onClick={() => handleEdit(record)}
-                        title="Sửa"
-                    />
-                    <Popconfirm
-                        title="Bạn chắc chắn muốn xoá?"
-                        onConfirm={() => handleDelete(record.id)}
-                        okText="Xoá"
-                        cancelText="Huỷ"
-                    >
+                    <Tooltip title="Sửa">
                         <Button
                             type="text"
-                            icon={<DeleteOutlined style={{ color: '#ff4d4f', fontSize: 18 }} />}
-                            danger
-                            title="Xoá"
+                            icon={<EditOutlined style={{ color: '#1890ff', fontSize: 18 }} />}
+                            onClick={() => handleEdit(record)}
                         />
-                    </Popconfirm>
+                    </Tooltip>
+                    <Tooltip title="Xoá">
+                        <Popconfirm
+                            title="Bạn chắc chắn muốn xoá?"
+                            onConfirm={() => handleDelete(record.id)}
+                            okText="Xoá"
+                            cancelText="Huỷ"
+                        >
+                            <Button
+                                type="text"
+                                icon={<DeleteOutlined style={{ color: '#ff4d4f', fontSize: 18 }} />}
+                                danger
+                            />
+                        </Popconfirm>
+                    </Tooltip>
                 </div>
             ),
         },
@@ -349,7 +347,7 @@ const QuestionPage = () => {
                     bordered
                     size="large"
                     pagination={{ pageSize: 8, showSizeChanger: false }}
-                    scroll={false}
+                    scroll={{ x: 'max-content' }}
                 />
             </div>
             <Modal

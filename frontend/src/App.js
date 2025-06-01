@@ -8,14 +8,12 @@ import AppRoutes from "./routes/Index";
 
 function AppContent() {
   const location = useLocation();
-  const isAdminPage = location.pathname.startsWith("/admin");
+  const isAuthPage = location.pathname === "/login" || location.pathname === "/register";
   const { isAuthenticated } = useUser();
 
-  return isAdminPage ? (
-    <Routes>{AppRoutes()}</Routes>
-  ) : (
+  return (
     <div className="page-layout">
-      {isAuthenticated && <Navbar />}
+      {!isAuthPage && <Navbar />}
       <main className="content">
         <Routes>{AppRoutes()}</Routes>
       </main>

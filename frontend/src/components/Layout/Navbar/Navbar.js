@@ -5,7 +5,6 @@ import { useUser } from '../../../contexts/UserContext';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -23,20 +22,13 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu when changing pages
+  // Close user menu when changing pages
   useEffect(() => {
-    setIsMobileMenuOpen(false);
     setIsUserMenuOpen(false);
   }, [location]);
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-    setIsUserMenuOpen(false);
-  };
-
   const toggleUserMenu = () => {
     setIsUserMenuOpen(!isUserMenuOpen);
-    setIsMobileMenuOpen(false);
   };
 
   const handleLogout = () => {
@@ -60,57 +52,52 @@ const Navbar = () => {
           <span>Test4U</span>
         </div>
 
-        {/* Mobile menu button */}
-        <button className="mobile-menu-button" onClick={toggleMobileMenu}>
-          <i className={`fas ${isMobileMenuOpen ? 'fa-times' : 'fa-bars'}`}></i>
-        </button>
         <div className="navbar-slogan">
           <i className="fas fa-lightbulb slogan-icon"></i>
           Nền tảng thi trắc nghiệm thông minh
         </div>
+
         {/* Navigation links */}
         {isAuthenticated && (
-          <div className={`nav-links ${isMobileMenuOpen ? 'active' : ''}`}>
+          <div className="nav-links">
           </div>
         )}
 
         {/* User menu */}
-        <div className="user-menu">
-          {isAuthenticated ? (
-            <div className="user-menu-container">
-              <button className="user-menu-button" onClick={toggleUserMenu}>
-                <div className="user-avatar">
-                  <i className="fas fa-user"></i>
-                </div>
-                <span className="user-name">{getUserDisplayName()}</span>
-                <i className={`fas fa-chevron-down ${isUserMenuOpen ? 'up' : ''}`}></i>
-              </button>
+        {isAuthenticated ? (
+          <div className="user-menu-container">
+            <button className="user-menu-button" onClick={toggleUserMenu}>
+              <div className="user-avatar">
+                <i className="fas fa-user"></i>
+              </div>
+              <span className="user-name">{getUserDisplayName()}</span>
+              <i className={`fas fa-chevron-down ${isUserMenuOpen ? 'up' : ''}`}></i>
+            </button>
 
-              {isUserMenuOpen && (
-                <div className="user-dropdown">
-                  <Link to="/profile" className="dropdown-item">
-                    <i className="fas fa-user-circle"></i>
-                    <span>Thông tin cá nhân</span>
-                  </Link>
-                  <Link to="/change-password" className="dropdown-item">
-                    <i className="fas fa-key"></i>
-                    <span>Đổi mật khẩu</span>
-                  </Link>
-                  <div className="dropdown-divider"></div>
-                  <button onClick={handleLogout} className="dropdown-item logout">
-                    <i className="fas fa-sign-out-alt"></i>
-                    <span>Đăng xuất</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <Link to="/login" className="login-button">
-              <i className="fas fa-sign-in-alt"></i>
-              <span>Đăng nhập</span>
-            </Link>
-          )}
-        </div>
+            {isUserMenuOpen && (
+              <div className="user-dropdown">
+                <Link to="/profile" className="dropdown-item">
+                  <i className="fas fa-user-circle"></i>
+                  <span>Thông tin cá nhân</span>
+                </Link>
+                <Link to="/change-password" className="dropdown-item">
+                  <i className="fas fa-key"></i>
+                  <span>Đổi mật khẩu</span>
+                </Link>
+                <div className="dropdown-divider"></div>
+                <button onClick={handleLogout} className="dropdown-item logout">
+                  <i className="fas fa-sign-out-alt"></i>
+                  <span>Đăng xuất</span>
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <Link to="/login" className="login-button">
+            <i className="fas fa-sign-in-alt"></i>
+            <span>Đăng nhập</span>
+          </Link>
+        )}
       </div>
     </nav>
   );

@@ -1,3 +1,12 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-x: hidden;
+  /* Prevent horizontal scroll */
+}
+
 .App {
   text-align: center;
 }
@@ -12,12 +21,13 @@
     animation: App-logo-spin infinite 20s linear;
   }
 }
+
 .page-layout:has(.admin-dashboard) {
-   padding: 0;
-   margin: 0;
-   min-height: unset;
-   background: none;
- }
+  padding: 0;
+  margin: 0;
+  min-height: unset;
+  background: none;
+}
 
 .App-header {
   background-color: #282c34;
@@ -38,14 +48,18 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
 }
+
 .page-layout {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  /* Ensure page-layout takes full height of its parent (body) */
 }
 
 .content {

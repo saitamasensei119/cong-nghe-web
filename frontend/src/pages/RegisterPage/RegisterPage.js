@@ -13,6 +13,8 @@ const RegisterPage = () => {
         confirmPassword: '',
         fullname: ''
     });
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -120,108 +122,116 @@ const RegisterPage = () => {
 
                 <form className="register-form" onSubmit={handleSubmit}>
                     <div className="form-group">
+                        <label className="form-label">Họ và tên</label>
                         <input
                             type="text"
                             name="fullname"
                             className="form-input"
-                            placeholder=" "
                             value={formData.fullname}
                             onChange={handleChange}
                         />
-                        <label className="form-label">Họ và tên</label>
                         {errors.fullname && (
                             <div className="error-message">
-                                <i className="fas fa-exclamation-circle"></i>
-                                {errors.fullname}
+                                ⚠️ {errors.fullname}
                             </div>
                         )}
                     </div>
 
                     <div className="form-group">
+                        <label className="form-label">Tên Đăng Nhập</label>
                         <input
                             type="text"
                             name="username"
                             className="form-input"
-                            placeholder=" "
                             value={formData.username}
                             onChange={handleChange}
                         />
-                        <label className="form-label">Tên Đăng Nhập</label>
                         {errors.name && (
                             <div className="error-message">
-                                <i className="fas fa-exclamation-circle"></i>
-                                {errors.name}
+                                ⚠️ {errors.name}
                             </div>
                         )}
                     </div>
 
                     <div className="form-group">
+                        <label className="form-label">Email</label>
                         <input
                             type="email"
                             name="email"
                             className="form-input"
-                            placeholder=" "
                             value={formData.email}
                             onChange={handleChange}
                         />
-                        <label className="form-label">Email</label>
                         {errors.email && (
                             <div className="error-message">
-                                <i className="fas fa-exclamation-circle"></i>
-                                {errors.email}
+                                ⚠️ {errors.email}
                             </div>
                         )}
                     </div>
 
                     <div className="form-group">
-                        <input
-                            type="password"
-                            name="password"
-                            className="form-input"
-                            placeholder=" "
-                            value={formData.password}
-                            onChange={handleChange}
-                        />
                         <label className="form-label">Mật khẩu</label>
-                        <i className="fas fa-eye password-toggle"></i>
+                        <div style={{ position: 'relative' }}>
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                name="password"
+                                className="form-input"
+                                value={formData.password}
+                                onChange={handleChange}
+                            />
+                            <button
+                                type="button"
+                                className="password-toggle"
+                                onClick={() => setShowPassword(!showPassword)}
+                                tabIndex={-1}
+                                aria-label="Hiện/ẩn mật khẩu"
+                            >
+                                <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                            </button>
+                        </div>
                         {errors.password && (
                             <div className="error-message">
-                                <i className="fas fa-exclamation-circle"></i>
-                                {errors.password}
+                                ⚠️ {errors.password}
                             </div>
                         )}
                     </div>
 
                     <div className="form-group">
-                        <input
-                            type="password"
-                            name="confirmPassword"
-                            className="form-input"
-                            placeholder=" "
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                        />
                         <label className="form-label">Xác nhận mật khẩu</label>
-                        <i className="fas fa-eye password-toggle"></i>
+                        <div style={{ position: 'relative' }}>
+                            <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                name="confirmPassword"
+                                className="form-input"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                            />
+                            <button
+                                type="button"
+                                className="password-toggle"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                tabIndex={-1}
+                                aria-label="Hiện/ẩn mật khẩu"
+                            >
+                                <i className={`fas ${showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                            </button>
+                        </div>
                         {errors.confirmPassword && (
                             <div className="error-message">
-                                <i className="fas fa-exclamation-circle"></i>
-                                {errors.confirmPassword}
+                                ⚠️ {errors.confirmPassword}
                             </div>
                         )}
                     </div>
 
                     {errors.submit && (
                         <div className="error-message">
-                            <i className="fas fa-exclamation-circle"></i>
-                            {errors.submit}
+                            ⚠️ {errors.submit}
                         </div>
                     )}
 
                     {success && (
                         <div className="success-message">
-                            <i className="fas fa-check-circle"></i>
-                            Đăng ký thành công! Đang chuyển hướng...
+                            ✓ Đăng ký thành công! Đang chuyển hướng...
                         </div>
                     )}
 
@@ -232,8 +242,7 @@ const RegisterPage = () => {
                     >
                         {loading ? (
                             <div className="loading">
-                                <i className="fas fa-spinner fa-spin"></i>
-                                Đang xử lý...
+                                ⌛ Đang xử lý...
                             </div>
                         ) : (
                             'Đăng ký'

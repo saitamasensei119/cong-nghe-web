@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { getUserProfile } from '../services/UserService';
+import { logout as authLogout } from '../services/AuthService';
 
 // Initial state
 const initialState = {
@@ -113,10 +114,19 @@ export const UserProvider = ({ children }) => {
   };
 
   // Logout function
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    dispatch({ type: USER_ACTIONS.LOGOUT });
+  const logout = async () => {
+    try {
+      await authLogout();
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      dispatch({ type: USER_ACTIONS.LOGOUT });
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Still clear local storage even if server logout fails
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      dispatch({ type: USER_ACTIONS.LOGOUT });
+    }
   };
 
   // Update user profile

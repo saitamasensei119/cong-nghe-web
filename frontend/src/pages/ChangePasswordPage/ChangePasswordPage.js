@@ -78,7 +78,15 @@ const ChangePasswordPage = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/auth/change-password', {
+      if (!token) {
+        toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+        setTimeout(() => {
+          navigate('/login');
+        }, 1500);
+        return;
+      }
+
+      const response = await fetch(`${process.env.REACT_APP_API_URL || ''}/api/auth/change-password`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -91,6 +99,14 @@ const ChangePasswordPage = () => {
       });
 
       const data = await response.json();
+
+      if (response.status === 401) {
+        toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+        setTimeout(() => {
+          navigate('/login');
+        }, 1500);
+        return;
+      }
 
       if (data.success) {
         toast.success('Đổi mật khẩu thành công!');

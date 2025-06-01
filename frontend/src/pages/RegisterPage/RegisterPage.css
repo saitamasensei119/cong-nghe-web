@@ -4,7 +4,7 @@
     align-items: center;
     justify-content: center;
     background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-    padding: 2rem;
+    padding: 0;
     position: relative;
     overflow: hidden;
 }
@@ -30,6 +30,12 @@
     }
 }
 
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
 .register-container {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
@@ -37,7 +43,8 @@
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
     width: 100%;
     max-width: 450px;
-    padding: 3rem 2.5rem;
+    padding: 3.5rem 2.5rem;
+    margin: 2rem auto;
     position: relative;
     z-index: 1;
     transform: translateY(0);
@@ -77,12 +84,22 @@
 
 .form-group {
     position: relative;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    color: #334155;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-left: 0.5rem;
 }
 
 .form-input {
     width: 100%;
-    padding: 1rem 1rem;
+    padding: 1rem 1rem 1rem 3rem;
     border: 2px solid #e2e8f0;
     border-radius: 12px;
     font-size: 1rem;
@@ -100,31 +117,14 @@
 .form-input:focus {
     border-color: #4f46e5;
     background: white;
-    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
     outline: none;
 }
 
-.form-label {
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-    color: #64748b;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    pointer-events: none;
-    background: transparent;
-    padding: 0 0.25rem;
-}
-
+/* Remove the floating label styles since we're not using them anymore */
 .form-input:focus+.form-label,
 .form-input:not(:placeholder-shown)+.form-label {
-    top: -0.5rem;
-    left: 0.75rem;
-    font-size: 0.85rem;
-    color: #4f46e5;
-    background: white;
-    padding: 0 0.25rem;
-    font-weight: 600;
+    display: none;
 }
 
 .password-toggle {
@@ -139,11 +139,17 @@
     background: none;
     border: none;
     padding: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 100%;
 }
 
 .password-toggle:hover {
     color: #4f46e5;
-    transform: translateY(-50%) scale(1.1);
+    transform: scale(1.1);
 }
 
 .error-message {
@@ -156,11 +162,6 @@
     border-radius: 12px;
     font-size: 0.95rem;
     border: 1px solid #fecaca;
-    margin-top: 0.5rem;
-}
-
-.error-message i {
-    font-size: 1.2rem;
 }
 
 .success-message {
@@ -173,11 +174,26 @@
     border-radius: 12px;
     font-size: 0.95rem;
     border: 1px solid #bbf7d0;
-    margin-top: 0.5rem;
 }
 
-.success-message i {
-    font-size: 1.2rem;
+.loading {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.loading span {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .register-btn {
@@ -197,7 +213,6 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    margin-top: 1rem;
 }
 
 .register-btn::before {
@@ -218,7 +233,7 @@
     left: 100%;
 }
 
-.register-btn:hover {
+.register-btn:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
 }
@@ -228,27 +243,6 @@
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
-}
-
-.loading {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.loading i {
-    font-size: 1.2rem;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
 }
 
 .register-footer {
@@ -272,14 +266,40 @@
 
 @media (max-width: 480px) {
     .register-page {
-        padding: 1rem;
+        padding: 0.75rem;
+        min-height: 100vh;
+        align-items: flex-start;
+        padding-top: 1rem;
+        overflow-y: auto;
+        height: auto;
     }
 
     .register-container {
-        padding: 2rem;
+        padding: 1.25rem;
+        margin: 0.75rem auto;
+        max-height: none;
+        overflow-y: visible;
     }
 
     .register-title {
-        font-size: 2rem;
+        font-size: 1.75rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .register-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .form-input {
+        padding: 0.875rem 1rem 0.875rem 2.5rem;
+    }
+
+    .form-label {
+        font-size: 0.85rem;
+    }
+
+    .register-btn {
+        padding: 0.875rem;
+        font-size: 1rem;
     }
 }

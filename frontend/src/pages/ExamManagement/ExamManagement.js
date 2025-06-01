@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, message, Tooltip, List } from 'antd';
-import { EyeOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
-
+import { Card, Button, Modal, Form, Input, message, Tooltip, List, Row, Col, Typography, Space, Table } from 'antd';
+import { EyeOutlined, EditOutlined, DeleteOutlined, SearchOutlined, ClockCircleOutlined, UserOutlined, CalendarOutlined, UserAddOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
-import { UserAddOutlined } from '@ant-design/icons';
 import './ExamManagement.css';
 import axiosInstance from "../../services/axiosInstance";
 
@@ -28,7 +26,6 @@ const ExamManagement = () => {
     const [searchStudent, setSearchStudent] = useState('');
     const [isAvailableStudentsModal, setIsAvailableStudentsModal] = useState(false);
     const [searchStudentList, setSearchStudentList] = useState('');
-    const [deleteStudentId, setDeleteStudentId] = useState(null);
 
     const studentListColumns = [
         {
@@ -46,20 +43,7 @@ const ExamManagement = () => {
             title: 'Email',
             dataIndex: 'email',
             key: 'email',
-        },
-        {
-            title: 'Thao tác',
-            key: 'action',
-            render: (_, record) => (
-                <Button
-                    type="primary"
-                    danger
-                    onClick={() => handleRemoveStudent(record.id)}
-                >
-                    Xóa
-                </Button>
-            ),
-        },
+        }
     ];
 
     useEffect(() => {
@@ -240,124 +224,112 @@ const ExamManagement = () => {
         }
     };
 
-    const handleRemoveStudent = (studentId) => {
-        setDeleteStudentId(studentId);
-    };
-
-    const confirmRemoveStudent = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            await axiosInstance.delete(
-                `/api/teacher/subjects/${subjectId}/students/${deleteStudentId}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-            message.success('Xóa học sinh khỏi môn học thành công');
-            setDeleteStudentId(null);
-            // Refresh student list
-            handleShowStudentList();
-        } catch (error) {
-            message.error('Xóa học sinh khỏi môn học thất bại');
-        }
-    };
-
-    const columns = [
-        { title: 'Tên đề thi', dataIndex: 'title', key: 'title' },
-        { title: 'Mô tả', dataIndex: 'description', key: 'description' },
-        { title: 'Thời gian (phút)', dataIndex: 'duration', key: 'duration', align: 'center' },
-        {
-            title: 'Người tạo',
-            dataIndex: ['createdBy', 'fullname'],
-            key: 'createdBy',
-            render: (_, record) => record.createdBy?.fullname || '---',
-            align: 'center'
-        },
-        {
-            title: 'Ngày tạo',
-            dataIndex: 'createdAt',
-            key: 'createdAt',
-            render: (text) => new Date(text).toLocaleDateString('vi-VN'),
-            align: 'center'
-        },
-        {
-            title: 'Thao tác',
-            key: 'actions',
-            align: 'center',
-            render: (_, record) => (
-                <div className="table-actions">
-                    <Tooltip title="Xem chi tiết">
-                        <Button
-                            shape="circle"
-                            icon={<EyeOutlined />}
-                            onClick={() => navigate(`/contest/${record.id}/${subjectId}`)}
-                        />
-                    </Tooltip>
-                    <Tooltip title="Sửa">
-                        <Button
-                            shape="circle"
-                            icon={<EditOutlined />}
-                            style={{ margin: '0 8px' }}
-                            onClick={() => handleEditExam(record)}
-                        />
-                    </Tooltip>
-                    <Tooltip title="Xóa">
-                        <Button
-                            shape="circle"
-                            icon={<DeleteOutlined />}
-                            danger
-                            onClick={() => handleDeleteExam(record.id)}
-                        />
-                    </Tooltip>
+    const renderExamCard = (exam) => (
+        <Card
+            key={exam.id}
+            className="exam-card"
+            hoverable
+        >
+            <div className="exam-card-content">
+                <div className="exam-card-header">
+                    <Typography.Title level={4} className="exam-title">
+                        {exam.title}
+                    </Typography.Title>
+                    <Space className="exam-actions">
+                        <Tooltip title="Xem chi tiết">
+                            <Button
+                                shape="circle"
+                                icon={<EyeOutlined />}
+                                onClick={() => navigate(`/contest/${exam.id}/${subjectId}`)}
+                            />
+                        </Tooltip>
+                        <Tooltip title="Sửa">
+                            <Button
+                                shape="circle"
+                                icon={<EditOutlined />}
+                                onClick={() => handleEditExam(exam)}
+                            />
+                        </Tooltip>
+                        <Tooltip title="Xóa">
+                            <Button
+                                shape="circle"
+                                icon={<DeleteOutlined />}
+                                danger
+                                onClick={() => handleDeleteExam(exam.id)}
+                            />
+                        </Tooltip>
+                    </Space>
                 </div>
-            ),
-        },
-    ];
+                <Typography.Paragraph className="exam-description" ellipsis={{ rows: 2 }}>
+                    {exam.description}
+                </Typography.Paragraph>
+                <div className="exam-meta">
+                    <Space size="large">
+                        <div className="meta-item">
+                            <ClockCircleOutlined /> {exam.duration} phút
+                        </div>
+                        <div className="meta-item">
+                            <UserOutlined /> {exam.createdBy?.fullname || '---'}
+                        </div>
+                        <div className="meta-item">
+                            <CalendarOutlined /> {new Date(exam.createdAt).toLocaleDateString('vi-VN')}
+                        </div>
+                    </Space>
+                </div>
+            </div>
+        </Card>
+    );
 
     return (
         <div className="exam-management">
             <div className="header">
                 <h1>Quản lý môn học</h1>
-                <div>
-                    <Button
-                        className="add-exam-btn"
-                        icon={<UserAddOutlined />}
-                        type="dashed"
-                        onClick={handleShowAvailableStudents}
-                    >
-                        Thêm học sinh vào môn học
-                    </Button>
-                    <Button
-                        className="add-exam-btn"
-                        type="default"
-                        onClick={handleShowStudentList}
-                        style={{ marginRight: 8 }}
-                    >
-                        Xem danh sách học sinh
-                    </Button>
-                    <Button
-                        className="add-exam-btn"
-                        type="primary"
-                        onClick={() => setIsModalVisible(true)}
-                        style={{ marginRight: 8 }}
-                    >
-                        Tạo đề thi
-                    </Button>
-
+                <div className="header-actions">
+                    <Space direction="vertical" style={{ width: '100%' }} className="mobile-header-actions">
+                        <Button
+                            className="add-exam-btn"
+                            icon={<UserAddOutlined />}
+                            type="dashed"
+                            onClick={handleShowAvailableStudents}
+                            block
+                        >
+                            Thêm học sinh
+                        </Button>
+                        <Button
+                            className="add-exam-btn"
+                            type="default"
+                            onClick={handleShowStudentList}
+                            block
+                        >
+                            Danh sách học sinh
+                        </Button>
+                        <Button
+                            className="add-exam-btn"
+                            type="primary"
+                            onClick={() => setIsModalVisible(true)}
+                            block
+                        >
+                            Tạo đề thi
+                        </Button>
+                    </Space>
                 </div>
             </div>
-            <div className="table-container">
-                <Table
-                    columns={columns}
-                    dataSource={exams}
-                    loading={loading}
-                    rowKey="id"
-                    bordered
-                    pagination={{ pageSize: 5 }}
-                />
+            <div className="exam-list">
+                {loading ? (
+                    <div className="loading-container">Đang tải...</div>
+                ) : exams.length > 0 ? (
+                    <Row gutter={[16, 16]}>
+                        {exams.map(exam => (
+                            <Col xs={24} sm={24} md={12} lg={8} key={exam.id}>
+                                {renderExamCard(exam)}
+                            </Col>
+                        ))}
+                    </Row>
+                ) : (
+                    <div className="empty-state">
+                        Chưa có đề thi nào. Hãy tạo đề thi mới!
+                    </div>
+                )}
             </div>
             <Modal
                 title="Thêm đề thi mới"
@@ -399,7 +371,8 @@ const ExamManagement = () => {
                 open={isAvailableStudentsModal}
                 onCancel={() => setIsAvailableStudentsModal(false)}
                 footer={null}
-                width={800}
+                width="90%"
+                style={{ maxWidth: '800px' }}
             >
                 <div style={{ marginBottom: 16 }}>
                     <Input
@@ -440,7 +413,8 @@ const ExamManagement = () => {
                 open={isStudentListModal}
                 onCancel={() => setIsStudentListModal(false)}
                 footer={null}
-                width={800}
+                width="90%"
+                style={{ maxWidth: '800px' }}
             >
                 <div style={{ marginBottom: 16 }}>
                     <Input
@@ -454,15 +428,25 @@ const ExamManagement = () => {
                 {loadingStudentList ? (
                     <div>Đang tải...</div>
                 ) : (
-                    <Table
-                        columns={studentListColumns}
+                    <List
                         dataSource={studentList.filter(student =>
                             student.fullname.toLowerCase().includes(searchStudentList.toLowerCase()) ||
                             student.username.toLowerCase().includes(searchStudentList.toLowerCase()) ||
                             student.email.toLowerCase().includes(searchStudentList.toLowerCase())
                         )}
-                        rowKey="id"
-                        pagination={{ pageSize: 5 }}
+                        renderItem={student => (
+                            <List.Item>
+                                <List.Item.Meta
+                                    title={student.fullname}
+                                    description={
+                                        <Space direction="vertical">
+                                            <span>Tên đăng nhập: {student.username}</span>
+                                            <span>Email: {student.email}</span>
+                                        </Space>
+                                    }
+                                />
+                            </List.Item>
+                        )}
                         locale={{ emptyText: 'Không có học sinh nào.' }}
                     />
                 )}
@@ -512,17 +496,6 @@ const ExamManagement = () => {
                 cancelText="Huỷ"
             >
                 Bạn có chắc muốn xoá đề thi này?
-            </Modal>
-            <Modal
-                title="Xác nhận xóa học sinh"
-                open={!!deleteStudentId}
-                onOk={confirmRemoveStudent}
-                onCancel={() => setDeleteStudentId(null)}
-                okText="Xóa"
-                okType="danger"
-                cancelText="Hủy"
-            >
-                Bạn có chắc muốn xóa học sinh này khỏi môn học?
             </Modal>
         </div>
     );

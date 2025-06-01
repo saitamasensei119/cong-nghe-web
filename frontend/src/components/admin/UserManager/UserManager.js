@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import './UserManager.css';
 import SearchComponent from '../SearchComponent/SearchComponent';
-import { 
-  addNewTeacher, 
+import {
+  addNewTeacher,
   addNewStudent,
-  updateStudentByAdmin, 
-  updateTeacherByAdmin, 
-  deleteStudentById, 
+  updateStudentByAdmin,
+  updateTeacherByAdmin,
+  deleteStudentById,
   deleteTeacherById,
-  searchUsers 
+  searchUsers
 } from '../../../services/AdminService';
 
 const UserManager = ({ users, loading, error, refreshUsers }) => {
@@ -18,19 +18,18 @@ const UserManager = ({ users, loading, error, refreshUsers }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
-  const [addingUserType, setAddingUserType] = useState(null); // 'teacher' or 'student'
+  const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
     fullname: '',
     email: '',
-    phone: '',
     password: ''
   });
 
   // Filter users based on search results and active tab
   const getFilteredUsers = () => {
     let filteredUsers = searchResults.length > 0 ? searchResults : users || [];
-    
+
     if (activeTab !== 'all') {
       filteredUsers = filteredUsers.filter(user => {
         const userRole = user.roles?.[0]?.name?.toLowerCase();
@@ -55,7 +54,7 @@ const UserManager = ({ users, loading, error, refreshUsers }) => {
       } else if (searchBy === 'email') {
         searchParams.email = searchTerm;
       }
-      
+
       const response = await searchUsers(searchParams);
       setSearchResults(response.data || []);
     } catch (err) {
@@ -68,36 +67,26 @@ const UserManager = ({ users, loading, error, refreshUsers }) => {
 
   const handleAddUser = async (e) => {
     e.preventDefault();
-    if (!addingUserType) return;
-
     try {
       const requestData = {
         username: formData.username,
         fullname: formData.fullname,
         email: formData.email,
-        phone: formData.phone,
         password: formData.password
       };
-      
-      let response;
-      if (addingUserType === 'teacher') {
-        response = await addNewTeacher(requestData);
-        console.log('Teacher added successfully:', response);
-        toast.success('Thêm giáo viên thành công!');
-      } else if (addingUserType === 'student') {
-        response = await addNewStudent(requestData);
-        console.log('Student added successfully:', response);
-        toast.success('Thêm học sinh thành công!');
-      }
-      
+
+      const response = await addNewTeacher(requestData);
+      console.log('Teacher added successfully:', response);
+      toast.success('Thêm giáo viên thành công!');
+
       refreshUsers();
       resetForm();
     } catch (err) {
-      console.error(`Error adding ${addingUserType}:`, err);
+      console.error('Error adding teacher:', err);
       if (err.response && err.response.data && err.response.data.message) {
         toast.error(`Lỗi: ${err.response.data.message}`);
       } else {
-        toast.error(`Không thể thêm ${addingUserType === 'teacher' ? 'giáo viên' : 'học sinh'}. Vui lòng thử lại sau.`);
+        toast.error('Không thể thêm giáo viên. Vui lòng thử lại sau.');
       }
     }
   };
@@ -108,12 +97,11 @@ const UserManager = ({ users, loading, error, refreshUsers }) => {
     try {
       const updateData = {
         fullname: formData.fullname,
-        email: formData.email,
-        phone: formData.phone
+        email: formData.email
       };
 
       const userRole = selectedUser.roles?.[0]?.name?.toLowerCase();
-      
+
       if (userRole === 'student') {
         await updateStudentByAdmin(selectedUser.id, updateData);
       } else if (userRole === 'teacher') {
@@ -136,7 +124,7 @@ const UserManager = ({ users, loading, error, refreshUsers }) => {
 
     try {
       const userRole = user.roles?.[0]?.name?.toLowerCase();
-      
+
       if (userRole === 'student') {
         await deleteStudentById(user.id);
       } else if (userRole === 'teacher') {
@@ -161,10 +149,10 @@ const UserManager = ({ users, loading, error, refreshUsers }) => {
       username: user.username || '',
       fullname: user.fullname || '',
       email: user.email || '',
-      phone: user.phone || '',
       password: ''
     });
     setIsEditing(true);
+    setShowModal(true);
   };
 
   const resetForm = () => {
@@ -172,19 +160,23 @@ const UserManager = ({ users, loading, error, refreshUsers }) => {
       username: '',
       fullname: '',
       email: '',
-      phone: '',
       password: ''
     });
     setIsEditing(false);
     setSelectedUser(null);
-    setAddingUserType(null);
+    setShowModal(false);
+  };
+
+  const handleAddClick = () => {
+    resetForm();
+    setShowModal(true);
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
-  
+
   const getRoleLabel = (role) => {
     switch (role?.toUpperCase()) {
       case 'ADMIN':
@@ -220,7 +212,7 @@ const UserManager = ({ users, loading, error, refreshUsers }) => {
 
   const counts = getUserCounts();
   const filteredUsers = getFilteredUsers();
-  
+
   return (
     <div className="user-manager">
       <div className="user-manager-header">
@@ -231,29 +223,26 @@ const UserManager = ({ users, loading, error, refreshUsers }) => {
             placeholder="Tìm kiếm người dùng theo tên hoặc email..."
             searchType="users"
           />
-          <button className="btn-add" onClick={() => { resetForm(); setIsEditing(false); setAddingUserType('teacher'); }}>
+          <button className="btn-add" onClick={handleAddClick}>
             <i className="fas fa-plus"></i> Thêm giáo viên
-          </button>
-          <button className="btn-add" onClick={() => { resetForm(); setIsEditing(false); setAddingUserType('student'); }}>
-            <i className="fas fa-plus"></i> Thêm học sinh
           </button>
         </div>
       </div>
 
       <div className="user-tabs">
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`}
           onClick={() => setActiveTab('all')}
         >
           Tất cả ({counts.all})
         </button>
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'student' ? 'active' : ''}`}
           onClick={() => setActiveTab('student')}
         >
           Học sinh ({counts.student})
         </button>
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'teacher' ? 'active' : ''}`}
           onClick={() => setActiveTab('teacher')}
         >
@@ -291,21 +280,20 @@ const UserManager = ({ users, loading, error, refreshUsers }) => {
                         <h4>{user.fullname}</h4>
                         <p className="user-email">{user.email}</p>
                         <p className="user-username">@{user.username}</p>
-                        {user.phone && <p className="user-phone">{user.phone}</p>}
                         <span className={getRoleBadgeClass(user.roles?.[0]?.name)}>
                           {getRoleLabel(user.roles?.[0]?.name)}
                         </span>
                       </div>
                       <div className="user-actions">
-                        <button 
-                          onClick={() => handleSelectUser(user)} 
+                        <button
+                          onClick={() => handleSelectUser(user)}
                           className="btn-edit"
                           title="Chỉnh sửa"
                         >
                           <i className="fas fa-edit"></i>
                         </button>
-                        <button 
-                          onClick={() => handleDeleteUser(user)} 
+                        <button
+                          onClick={() => handleDeleteUser(user)}
                           className="btn-delete"
                           title="Xóa"
                         >
@@ -319,25 +307,23 @@ const UserManager = ({ users, loading, error, refreshUsers }) => {
             </div>
           )}
         </div>
+      </div>
 
-        <div className="user-form-container">
-          <div className="form-header">
-            <h3>
-              {isEditing 
-                ? 'Cập nhật thông tin người dùng' 
-                : addingUserType 
-                  ? `Thêm ${addingUserType === 'teacher' ? 'giáo viên' : 'học sinh'} mới`
-                  : 'Chọn loại người dùng để thêm'
-              }
-            </h3>
-            {(isEditing || addingUserType) && (
-              <button className="close-form-btn" onClick={resetForm}>
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>
+                {isEditing
+                  ? 'Cập nhật thông tin người dùng'
+                  : 'Thêm giáo viên mới'
+                }
+              </h3>
+              <button className="close-modal-btn" onClick={resetForm}>
                 <i className="fas fa-times"></i>
               </button>
-            )}
-          </div>
-          
-          {(isEditing || addingUserType) && (
+            </div>
+
             <form className="user-form" onSubmit={isEditing ? (e) => { e.preventDefault(); handleUpdateUser(); } : handleAddUser}>
               {!isEditing && (
                 <div className="form-group">
@@ -352,7 +338,7 @@ const UserManager = ({ users, loading, error, refreshUsers }) => {
                   />
                 </div>
               )}
-              
+
               <div className="form-group">
                 <label>Họ và tên *</label>
                 <input
@@ -364,7 +350,7 @@ const UserManager = ({ users, loading, error, refreshUsers }) => {
                   placeholder="Nhập họ và tên đầy đủ"
                 />
               </div>
-              
+
               <div className="form-group">
                 <label>Email *</label>
                 <input
@@ -376,18 +362,7 @@ const UserManager = ({ users, loading, error, refreshUsers }) => {
                   placeholder="Nhập địa chỉ email"
                 />
               </div>
-              
-              <div className="form-group">
-                <label>Số điện thoại</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="Nhập số điện thoại"
-                />
-              </div>
-              
+
               {!isEditing && (
                 <div className="form-group">
                   <label>Mật khẩu *</label>
@@ -402,7 +377,7 @@ const UserManager = ({ users, loading, error, refreshUsers }) => {
                   />
                 </div>
               )}
-              
+
               <div className="form-actions">
                 <button type="submit" className="btn-save">
                   {isEditing ? (
@@ -411,27 +386,18 @@ const UserManager = ({ users, loading, error, refreshUsers }) => {
                     </>
                   ) : (
                     <>
-                      <i className="fas fa-plus"></i> Thêm {addingUserType === 'teacher' ? 'giáo viên' : 'học sinh'}
+                      <i className="fas fa-plus"></i> Thêm giáo viên
                     </>
                   )}
                 </button>
-                {(isEditing || addingUserType) && (
-                  <button type="button" onClick={resetForm} className="btn-cancel">
-                    <i className="fas fa-times"></i> Hủy
-                  </button>
-                )}
+                <button type="button" onClick={resetForm} className="btn-cancel">
+                  <i className="fas fa-times"></i> Hủy
+                </button>
               </div>
             </form>
-          )}
-          
-          {!isEditing && !addingUserType && (
-            <div className="empty-form-state">
-              <i className="fas fa-user-plus"></i>
-              <p>Chọn "Thêm giáo viên" hoặc "Thêm học sinh" để bắt đầu</p>
-            </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

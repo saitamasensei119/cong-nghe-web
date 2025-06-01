@@ -44,22 +44,22 @@ const ExamManagement = () => {
             setLoading(false);
         }
     };
-    
-   
+
+
 
     const columns = [
         {
             title: 'Tên đề thi',
             dataIndex: 'title',
             key: 'title',
-        
+
             render: (text, record) => (
-            <a
-                style={{ cursor: 'pointer', color: '#1677ff' }}
-                onClick={() => navigate(`/student/question/exam/${record.id}/ready`, { state: { examInfo: record } })}
-            >
-                {text}
-            </a>
+                <a
+                    style={{ cursor: 'pointer', color: '#1677ff' }}
+                    onClick={() => navigate(`/student/question/exam/${record.id}/ready`, { state: { examInfo: record } })}
+                >
+                    {text}
+                </a>
             ),
 
         },
@@ -98,7 +98,8 @@ const ExamManagement = () => {
                     loading={loading}
                     rowKey="id"
                     bordered
-                    pagination={{ pageSize: 5 , showSizeChanger: false}}
+                    pagination={{ pageSize: 5, showSizeChanger: false }}
+                    scroll={{ x: 'max-content' }}
                 />
             </div>
 

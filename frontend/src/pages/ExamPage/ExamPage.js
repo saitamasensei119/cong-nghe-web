@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './ExamPage.css';
 import { useNavigate } from 'react-router-dom';
-import { EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button } from 'antd';
+import { EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Input } from 'antd';
 import axiosInstance from "../../services/axiosInstance";
 
 // Hàm lấy đường dẫn ảnh từ thư mục public/images
 const getSubjectImage = (name) => {
   const key = name
-      .normalize('NFD')
-      .replace(/[̀-ͯ]/g, '')
-      .toLowerCase()
-      .trim();
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .trim();
 
   const images = {
     'toan': '/images/math.jpg',
@@ -32,6 +32,7 @@ const ExamPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [editSubject, setEditSubject] = useState(null);
   const [formData, setFormData] = useState({ name: '', description: '' });
+  const [searchQuery, setSearchQuery] = useState('');
 
   const navigate = useNavigate();
 
@@ -50,9 +51,9 @@ const ExamPage = () => {
       setSubjects(response.data);
     } catch (err) {
       setError(
-          err.response?.data?.message ||
-          err.message ||
-          'Đã xảy ra lỗi khi tải dữ liệu.'
+        err.response?.data?.message ||
+        err.message ||
+        'Đã xảy ra lỗi khi tải dữ liệu.'
       );
     } finally {
       setLoading(false);
@@ -81,15 +82,15 @@ const ExamPage = () => {
     try {
       if (editSubject) {
         await axiosInstance.put(
-            `/api/teacher/subjects/${editSubject.id}`,
-            formData,
-            { headers: { Authorization: `Bearer ${token}` } }
+          `/api/teacher/subjects/${editSubject.id}`,
+          formData,
+          { headers: { Authorization: `Bearer ${token}` } }
         );
       } else {
         await axiosInstance.post(
-            '/api/teacher/subjects',
-            formData,
-            { headers: { Authorization: `Bearer ${token}` } }
+          '/api/teacher/subjects',
+          formData,
+          { headers: { Authorization: `Bearer ${token}` } }
         );
       }
       setShowForm(false);
@@ -101,90 +102,107 @@ const ExamPage = () => {
 
   const closeForm = () => setShowForm(false);
 
+  // Filter subjects based on search query
+  const filteredSubjects = subjects.filter(subject =>
+    subject.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (loading) return <p className="loading">Đang tải dữ liệu...</p>;
   if (error) return <p className="error">Lỗi: {error}</p>;
 
   return (
-      <div className={`exam-container main-content ep${showForm ? ' modal-open' : ''}`}>
-        <h1 className="subject-title">Danh sách môn học của tôi</h1>
+    <div className={`exam-container main-content ep${showForm ? ' modal-open' : ''}`}>
+      <h1 className="subject-title">Danh sách môn học của tôi</h1>
+      <div className="subject-actions">
+        <Input
+          placeholder="Tìm kiếm môn học..."
+          prefix={<SearchOutlined />}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="search-input"
+          allowClear
+        />
         <Button
-            onClick={openAddForm}
-            className="add-subject-btn"
-            icon={<PlusOutlined />}
-            type="primary"
+          onClick={openAddForm}
+          className="add-subject-btn"
+          icon={<PlusOutlined />}
+          type="primary"
         >
           Đăng ký môn học
         </Button>
-        {showForm && (
-            <div className="modal">
-              <form className="subject-form" onSubmit={handleSubmit}>
-                <h2>{editSubject ? 'Sửa môn học' : 'Đăng ký môn học'}</h2>
-                <input
-                    type="text"
-                    placeholder="Tên môn học"
-                    value={formData.name}
-                    onChange={e => setFormData({ ...formData, name: e.target.value })}
-                    required
-                />
-                <input
-                    type="text"
-                    placeholder="Mô tả"
-                    value={formData.description}
-                    onChange={e => setFormData({ ...formData, description: e.target.value })}
-                />
-                <button type="submit">Lưu</button>
-                <button type="button" onClick={closeForm}>Huỷ</button>
-              </form>
-            </div>
-        )}
-        {subjects.length === 0 ? (
-            <p className="no-subjects">Không có môn học nào.</p>
-        ) : (
-            <div className="subject-list">
-              {subjects
-                  .slice() // tạo bản sao để không thay đổi state gốc
-                  .sort((a, b) => {
-                    const codeA = (a.code || a.id).toString();
-                    const codeB = (b.code || b.id).toString();
-                    return codeA.localeCompare(codeB, undefined, { numeric: true });
-                  })
-                  .map((subject) => (
-                      <div
-                          className="subject-card"
-                          key={subject.id}
-                          onClick={() => {
-                            navigate(`/exams/subject/${subject.id}`);
-                          }}
-                      >
-                        <div className="subject-card-img">
-                          <img
-                              src={getSubjectImage(subject.name)}
-                              alt={subject.name}
-                          />
-                        </div>
-                        <div className="subject-card-content">
-                          <div className="subject-card-title">
-                            {subject.name}
-                            <EditOutlined
-                                className="edit-icon"
-                                style={{ color: '#1890ff', fontSize: 18, marginLeft: 8, cursor: 'pointer' }}
-                                title="Sửa môn học"
-                                onClick={e => {
-                                  e.stopPropagation();
-                                  openEditForm(subject);
-                                }}
-                            />
-                          </div>
-                          <div className="subject-card-desc">{subject.description}</div>
-                          <div className="subject-card-meta">
-                            <span>Mã môn: {subject.code || subject.id}</span>
-                          </div>
-                        </div>
-                      </div>
-                  ))}
-            </div>
-        )}
       </div>
+      {showForm && (
+        <div className="modal">
+          <form className="subject-form" onSubmit={handleSubmit}>
+            <h2>{editSubject ? 'Sửa môn học' : 'Đăng ký môn học'}</h2>
+            <input
+              type="text"
+              placeholder="Tên môn học"
+              value={formData.name}
+              onChange={e => setFormData({ ...formData, name: e.target.value })}
+              required
+            />
+            <input
+              type="text"
+              placeholder="Mô tả"
+              value={formData.description}
+              onChange={e => setFormData({ ...formData, description: e.target.value })}
+            />
+            <button type="submit">Lưu</button>
+            <button type="button" onClick={closeForm}>Huỷ</button>
+          </form>
+        </div>
+      )}
+      {filteredSubjects.length === 0 ? (
+        <p className="no-subjects">
+          {searchQuery ? 'Không tìm thấy môn học nào phù hợp.' : 'Không có môn học nào.'}
+        </p>
+      ) : (
+        <div className="subject-list">
+          {filteredSubjects
+            .slice()
+            .sort((a, b) => {
+              const codeA = (a.code || a.id).toString();
+              const codeB = (b.code || b.id).toString();
+              return codeA.localeCompare(codeB, undefined, { numeric: true });
+            })
+            .map((subject) => (
+              <div
+                className="subject-card"
+                key={subject.id}
+                onClick={() => {
+                  navigate(`/exams/subject/${subject.id}`);
+                }}
+              >
+                <div className="subject-card-img">
+                  <img
+                    src={getSubjectImage(subject.name)}
+                    alt={subject.name}
+                  />
+                </div>
+                <div className="subject-card-content">
+                  <div className="subject-card-title">
+                    {subject.name}
+                    <EditOutlined
+                      className="edit-icon"
+                      style={{ color: '#1890ff', fontSize: 18, marginLeft: 8, cursor: 'pointer' }}
+                      title="Sửa môn học"
+                      onClick={e => {
+                        e.stopPropagation();
+                        openEditForm(subject);
+                      }}
+                    />
+                  </div>
+                  <div className="subject-card-desc">{subject.description}</div>
+                  <div className="subject-card-meta">
+                    <span>Mã môn: {subject.code || subject.id}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
+      )}
+    </div>
   );
 };
 
