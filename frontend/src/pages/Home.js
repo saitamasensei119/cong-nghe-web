@@ -32,19 +32,19 @@ const Home = () => {
     const developers = [
         {
             name: 'Lê Tăng Đạt',
-            avatar: 'https://joeschmoe.io/api/v1/1'
+            avatar: 'https://i.pravatar.cc/150?img=1'
         },
         {
             name: 'Trần Đình Đạt',
-            avatar: 'https://joeschmoe.io/api/v1/2'
+            avatar: 'https://i.pravatar.cc/150?img=2'
         },
         {
             name: 'Cao Tuấn Đạt',
-            avatar: 'https://joeschmoe.io/api/v1/3'
+            avatar: 'https://i.pravatar.cc/150?img=3'
         },
         {
             name: 'Ngô Ngọc Đăng',
-            avatar: 'https://joeschmoe.io/api/v1/4'
+            avatar: 'https://i.pravatar.cc/150?img=4'
         }
     ];
 

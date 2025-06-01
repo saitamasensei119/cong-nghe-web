@@ -1,0 +1,11 @@
+/* Global styles for pages */
+.main-content {
+    margin-top: 100px;
+}
+
+/* Exclude login, register, and homepage from the margin-top rule */
+.login-page,
+.register-page,
+.home-page {
+    margin-top: 0 !important;
+}

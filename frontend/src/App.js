@@ -1,4 +1,5 @@
 import "antd/dist/reset.css";
+import "./pages/global.css";
 import React from "react";
 import { BrowserRouter as Router, Routes, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
@@ -13,9 +14,9 @@ function AppContent() {
   const { isAuthenticated } = useUser();
 
   return (
-    <div className="page-layout">
+    <div className={`page-layout ${isAuthPage ? 'login-page' : isHomePage ? 'home-page' : ''}`}>
       {!isAuthPage && !isHomePage && <Navbar />}
-      <main className="content">
+      <main className="content main-content">
         <Routes>{AppRoutes()}</Routes>
       </main>
       {/*<Footer />*/}
