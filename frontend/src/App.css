@@ -59,9 +59,13 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  /* Ensure page-layout takes full height of its parent (body) */
+  margin: 0;
+  padding: 0;
 }
 
 .content {
   flex: 1;
+  margin: 0;
+  padding: 0;
+  width: 100%;
 }

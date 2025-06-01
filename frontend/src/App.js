@@ -9,11 +9,12 @@ import AppRoutes from "./routes/Index";
 function AppContent() {
   const location = useLocation();
   const isAuthPage = location.pathname === "/login" || location.pathname === "/register";
+  const isHomePage = location.pathname === "/";
   const { isAuthenticated } = useUser();
 
   return (
     <div className="page-layout">
-      {!isAuthPage && <Navbar />}
+      {!isAuthPage && !isHomePage && <Navbar />}
       <main className="content">
         <Routes>{AppRoutes()}</Routes>
       </main>

@@ -61,13 +61,13 @@ const Home = () => {
     };
 
     return (
-        <Content style={{ padding: '0 50px', minHeight: 'calc(100vh - 64px)' }}>
+        <Content style={{ padding: '0', minHeight: '100vh' }}>
             {/* Hero Section */}
             <div style={{
                 background: 'linear-gradient(135deg, #1890ff 0%, #722ed1 100%)',
                 padding: '80px 0',
                 marginBottom: '50px',
-                borderRadius: '0 0 20px 20px',
+                borderRadius: '0',
                 color: 'white'
             }}>
                 <Row justify="center" align="middle">

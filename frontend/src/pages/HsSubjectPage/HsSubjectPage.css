@@ -1,6 +1,6 @@
 .subject-list {
     display: grid;
-    grid-template-columns: repeat(5, minmax(300px, 1fr));
+    grid-template-columns: repeat(4, minmax(300px, 1fr));
     /* 5 cột, card to hơn */
     gap: 36px 32px;
     /* Tăng khoảng cách giữa các card */
