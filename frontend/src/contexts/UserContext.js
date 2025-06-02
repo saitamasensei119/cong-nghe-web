@@ -1,15 +1,16 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { jwtDecode } from 'jwt-decode';
 import { getUserProfile } from '../services/UserService';
 import { logout as authLogout } from '../services/AuthService';
 
 // Initial state
 const initialState = {
-  user: null,
+  user: JSON.parse(localStorage.getItem('user')) || null,
   userProfile: null,
-  loading: false,
+  loading: true, // Start with loading true
   error: null,
-  isAuthenticated: false
+  isAuthenticated: !!localStorage.getItem('token')
 };
 
 // Action types
@@ -45,7 +46,7 @@ const userReducer = (state, action) => {
     case USER_ACTIONS.SET_ERROR:
       return { ...state, error: action.payload, loading: false };
     case USER_ACTIONS.LOGOUT:
-      return { ...initialState };
+      return { ...initialState, loading: false };
     case USER_ACTIONS.CLEAR_ERROR:
       return { ...state, error: null };
     default:
@@ -75,7 +76,10 @@ export const UserProvider = ({ children }) => {
           console.error('Invalid token:', error);
           localStorage.removeItem('token');
           localStorage.removeItem('user');
+          dispatch({ type: USER_ACTIONS.LOGOUT });
         }
+      } else {
+        dispatch({ type: USER_ACTIONS.SET_LOADING, payload: false });
       }
     };
 
@@ -91,6 +95,7 @@ export const UserProvider = ({ children }) => {
     } catch (error) {
       console.error('Error fetching user profile:', error);
       dispatch({ type: USER_ACTIONS.SET_ERROR, payload: 'Không thể tải thông tin người dùng' });
+      // Don't logout on profile fetch error
     }
   };
 
@@ -117,12 +122,9 @@ export const UserProvider = ({ children }) => {
   const logout = async () => {
     try {
       await authLogout();
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      dispatch({ type: USER_ACTIONS.LOGOUT });
     } catch (error) {
       console.error('Logout error:', error);
-      // Still clear local storage even if server logout fails
+    } finally {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       dispatch({ type: USER_ACTIONS.LOGOUT });
@@ -153,6 +155,10 @@ export const UserProvider = ({ children }) => {
       {children}
     </UserContext.Provider>
   );
+};
+
+UserProvider.propTypes = {
+  children: PropTypes.node.isRequired
 };
 
 // Custom hook to use user context
