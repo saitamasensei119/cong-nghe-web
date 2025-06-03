@@ -1,69 +1,48 @@
-import React, { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
+import React from "react";
+import { Navigate } from "react-router-dom";
+import { useUser } from "../contexts/UserContext";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [userRole, setUserRole] = useState(null);
-    const [loading, setLoading] = useState(true);
+  const { isAuthenticated, userProfile, loading } = useUser();
 
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            setLoading(false);
-            return;
-        }
+  if (loading) return <div>Loading...</div>;
 
-        try {
-            const decoded = jwtDecode(token);
-            console.log('decode', decoded)
-            const role = decoded.roles[0] || decoded.user?.roles[0];
-            setIsAuthenticated(true);
-            setUserRole(role);
-            console.log('check token', token, allowedRoles, "token role", role)
+  if (!isAuthenticated) return <Navigate to="/login" />;
 
-        } catch (error) {
-            console.error("Invalid token:", error);
-            localStorage.removeItem('token');
-        }
-
-        setLoading(false);
-    }, []);
-
-    if (loading) return <div>Loading...</div>;
-
-    if (!isAuthenticated) return <Navigate to="/login" />;
-
-    // Kiểm tra quyền truy cập - chuyển đổi tất cả về chữ thường để so sánh
-    const hasPermission = allowedRoles && allowedRoles.some(role =>
-        role.toLowerCase() === userRole?.toLowerCase()
+  // Check access permissions
+  if (allowedRoles && userProfile?.roles) {
+    const hasPermission = allowedRoles.some((role) =>
+      userProfile.roles.some(
+        (userRole) => role.toLowerCase() === userRole.toLowerCase()
+      )
     );
 
-    if (allowedRoles && !hasPermission) {
-        // ⛔ Người dùng không có quyền → chuyển hướng về route mặc định theo role
-        let redirectPath = '/';
+    if (!hasPermission) {
+      // User doesn't have permission → redirect to default route based on role
+      let redirectPath = "/";
 
-        // Chuyển đổi userRole về chữ thường để so sánh
-        const roleLower = userRole?.toLowerCase();
+      // Get the first role to determine redirect path
+      const primaryRole = userProfile.roles[0]?.toLowerCase();
 
-        switch (roleLower) {
-            case 'admin':
-                redirectPath = '/admin';
-                break;
-            case 'teacher':
-                redirectPath = '/teacher';
-                break;
-            case 'student':
-                redirectPath = '/';
-                break;
-            default:
-                redirectPath = '/login';
-        }
+      switch (primaryRole) {
+        case "admin":
+          redirectPath = "/admin";
+          break;
+        case "teacher":
+          redirectPath = "/teacher";
+          break;
+        case "student":
+          redirectPath = "/home";
+          break;
+        default:
+          redirectPath = "/login";
+      }
 
-        return <Navigate to={redirectPath} />;
+      return <Navigate to={redirectPath} />;
     }
+  }
 
-    return children;
+  return children;
 };
 
 export default ProtectedRoute;

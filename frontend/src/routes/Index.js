@@ -1,18 +1,10 @@
-import React from 'react';
-import { Routes } from 'react-router-dom';
-import AuthRoutes from './AuthRoutes';
-import ExamRoutes from './ExamRoutes';
-import AdminRoutes from './AdminRoutes';
+import AuthRoutes from "./AuthRoutes";
+import ExamRoutes from "./ExamRoutes";
+import AdminRoutes from "./AdminRoutes";
+import HomeRoutes from "./HomeRoutes";
 
-const AppRoutes = ({ user, onLogin, onLogout }) => {
-    return (
-        <Routes>
-            {/** Sử dụng gọi hàm component như JSX */}
-            <>{AuthRoutes({ user, onLogin })}</>
-            <>{ExamRoutes({ user, onLogout })}</>
-            <>{AdminRoutes({ onLogout })}</>
-        </Routes>
-    );
+const AppRoutes = () => {
+  return [...HomeRoutes(), ...AuthRoutes(), ...ExamRoutes(), ...AdminRoutes()];
 };
 
 export default AppRoutes;

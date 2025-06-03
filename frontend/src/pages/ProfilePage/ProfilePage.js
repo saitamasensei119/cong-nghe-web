@@ -1,497 +1,223 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './ProfilePage.css';
+import React, { useState, useEffect } from "react";
+import "./ProfilePage.css";
+import { useUser } from "../../contexts/UserContext";
+import {
+  updateStudentProfile,
+  updateTeacherProfile,
+} from "../../services/UserService";
 
-const ProfilePage = ({ user, onLogout }) => {
-    const [userData, setUserData] = useState(user || null);
-    const [loading, setLoading] = useState(!user);
-    const [error, setError] = useState(null);
-    const [isEditing, setIsEditing] = useState(false);
-    const [formData, setFormData] = useState({
-        name: user?.name || '',
-        email: user?.email || '',
-        phone: user?.phone || '',
-        birthday: user?.birthday ? user.birthday.substring(0, 10) : '',
-        address: user?.address || '',
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-    });
-    const [passwordError, setPasswordError] = useState('');
-    const [updateSuccess, setUpdateSuccess] = useState('');
+const ProfilePage = () => {
+  const { user, userProfile, fetchUserProfile, loading, error } = useUser();
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    fullname: "",
+    email: "",
+  });
+  const [updateSuccess, setUpdateSuccess] = useState("");
+  const [updateLoading, setUpdateLoading] = useState(false);
 
-    useEffect(() => {
-        // Nếu không có user props, thì mới gọi API
-        if (!user) {
-            fetchUserProfile();
-        }
-    }, [user]);
+  // Combine user from JWT and userProfile from API
+  const combinedUserData = {
+    ...user, // JWT data (has roles, username)
+    ...userProfile, // API data (has id, fullname, email)
+  };
 
-    // Cập nhật formData khi user props thay đổi
-    useEffect(() => {
-        if (user) {
-            setUserData(user);
-            setFormData({
-                name: user.name || '',
-                email: user.email || '',
-                phone: user.phone || '',
-                birthday: user.birthday ? user.birthday.substring(0, 10) : '',
-                address: user.address || '',
-                currentPassword: '',
-                newPassword: '',
-                confirmPassword: ''
-            });
-        }
-    }, [user]);
-
-    const fetchUserProfile = async () => {
-        setLoading(true);
-        try {
-            // Lấy token từ localStorage
-            const token = localStorage.getItem('token');
-
-            if (!token) {
-                throw new Error('Bạn chưa đăng nhập');
-            }
-
-            const response = await axios.get('/api/student', {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-
-            setUserData(response.data);
-            setFormData({
-                name: response.data.name || '',
-                email: response.data.email || '',
-                phone: response.data.phone || '',
-                birthday: response.data.birthday ? response.data.birthday.substring(0, 10) : '',
-                address: response.data.address || '',
-                currentPassword: '',
-                newPassword: '',
-                confirmPassword: ''
-            });
-            setError(null);
-        } catch (err) {
-            console.error('Error fetching profile:', err);
-            setError('Không thể tải thông tin hồ sơ. Vui lòng thử lại sau.');
-
-            // Nếu lỗi là do token không hợp lệ thì logout
-            if (err.response && err.response.status === 401) {
-                if (onLogout) onLogout();
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-
-        // Reset error messages when typing a new password
-        if (['currentPassword', 'newPassword', 'confirmPassword'].includes(name)) {
-            setPasswordError('');
-        }
-
-        // Reset success message when making changes
-        setUpdateSuccess('');
-    };
-
-    const toggleEditMode = () => {
-        setIsEditing(!isEditing);
-
-        // Reset password fields and error when toggling edit mode
-        if (!isEditing) {
-            setFormData(prev => ({
-                ...prev,
-                currentPassword: '',
-                newPassword: '',
-                confirmPassword: ''
-            }));
-            setPasswordError('');
-            setUpdateSuccess('');
-        }
-    };
-
-    const validatePasswordChange = () => {
-        // Kiểm tra nếu người dùng muốn đổi mật khẩu
-        if (formData.newPassword || formData.confirmPassword) {
-            // Kiểm tra mật khẩu hiện tại đã được nhập
-            if (!formData.currentPassword) {
-                setPasswordError('Vui lòng nhập mật khẩu hiện tại');
-                return false;
-            }
-
-            // Kiểm tra mật khẩu mới đã được nhập
-            if (!formData.newPassword) {
-                setPasswordError('Vui lòng nhập mật khẩu mới');
-                return false;
-            }
-
-            // Kiểm tra xác nhận mật khẩu đã được nhập
-            if (!formData.confirmPassword) {
-                setPasswordError('Vui lòng xác nhận mật khẩu mới');
-                return false;
-            }
-
-            // Kiểm tra mật khẩu mới và xác nhận mật khẩu có trùng khớp
-            if (formData.newPassword !== formData.confirmPassword) {
-                setPasswordError('Mật khẩu mới và xác nhận mật khẩu không khớp');
-                return false;
-            }
-
-            // Kiểm tra độ dài mật khẩu mới (ít nhất 6 ký tự)
-            if (formData.newPassword.length < 6) {
-                setPasswordError('Mật khẩu mới phải có ít nhất 6 ký tự');
-                return false;
-            }
-        }
-
-        return true;
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        // Validate password if user is changing it
-        if (!validatePasswordChange()) {
-            return;
-        }
-
-        setLoading(true);
-        setUpdateSuccess('');
-
-        try {
-            const token = localStorage.getItem('token');
-
-            if (!token) {
-                throw new Error('Bạn chưa đăng nhập');
-            }
-
-            // Create data object to send to server
-            const updateData = {
-                name: formData.name,
-                phone: formData.phone,
-                birthday: formData.birthday,
-                address: formData.address
-            };
-
-            // Add password fields if the user is changing password
-            if (formData.currentPassword && formData.newPassword) {
-                updateData.currentPassword = formData.currentPassword;
-                updateData.newPassword = formData.newPassword;
-            }
-
-            // Update profile on server
-            await axios.put('/api/student/update-info', updateData, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-
-            // Refresh user data after update
-            await fetchUserProfile();
-
-            setUpdateSuccess('Cập nhật thông tin thành công!');
-            setIsEditing(false);
-
-            // Reset password fields
-            setFormData(prev => ({
-                ...prev,
-                currentPassword: '',
-                newPassword: '',
-                confirmPassword: ''
-            }));
-
-        } catch (err) {
-            console.error('Error updating profile:', err);
-
-            if (err.response && err.response.data && err.response.data.message) {
-                // Show server error message
-                if (err.response.data.message.includes('password')) {
-                    setPasswordError(err.response.data.message);
-                } else {
-                    setError(err.response.data.message);
-                }
-            } else {
-                setError('Không thể cập nhật thông tin. Vui lòng thử lại sau.');
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    if (loading && !userData) {
-        return (
-            <div className="profile-page loading-container">
-                <div className="loading-spinner"></div>
-                <p>Đang tải thông tin...</p>
-            </div>
-        );
+  // Initialize form data when userProfile changes
+  useEffect(() => {
+    if (userProfile) {
+      setFormData({
+        fullname: userProfile.fullname || "",
+        email: userProfile.email || "",
+      });
     }
+  }, [userProfile]);
 
-    if (error && !userData) {
-        return (
-            <div className="profile-page error-container">
-                <div className="error-icon">
-                    <i className="fas fa-exclamation-circle"></i>
-                </div>
-                <p className="error-message">{error}</p>
-                <button className="btn-retry" onClick={fetchUserProfile}>
-                    Thử lại
-                </button>
-            </div>
-        );
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setUpdateSuccess("");
+  };
+
+  const toggleEditMode = () => {
+    setIsEditing(!isEditing);
+    setUpdateSuccess("");
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setUpdateLoading(true);
+    setUpdateSuccess("");
+
+    try {
+      // Update profile information based on user role
+      const profileUpdateData = {
+        fullname: formData.fullname,
+        email: formData.email,
+      };
+
+      // Use role-specific update endpoints based on JWT roles
+      if (
+        combinedUserData.roles &&
+        combinedUserData.roles.includes("STUDENT")
+      ) {
+        await updateStudentProfile(profileUpdateData);
+      } else if (
+        combinedUserData.roles &&
+        combinedUserData.roles.includes("TEACHER")
+      ) {
+        await updateTeacherProfile(profileUpdateData);
+      }
+
+      // Refresh user profile
+      await fetchUserProfile();
+
+      setUpdateSuccess("Cập nhật thông tin thành công!");
+      setIsEditing(false);
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      setUpdateSuccess(""); // Clear success message
+    } finally {
+      setUpdateLoading(false);
     }
+  };
 
+  if (loading && !userProfile) {
     return (
-        <div className="profile-page">
-            <div className="profile-container">
-                <div className="profile-header">
-                    <h1>Thông tin cá nhân</h1>
-                    <button
-                        className={`btn-edit-profile ${isEditing ? 'btn-cancel' : ''}`}
-                        onClick={toggleEditMode}
-                    >
-                        {isEditing ? (
-                            <>
-                                <i className="fas fa-times"></i> Hủy
-                            </>
-                        ) : (
-                            <>
-                                <i className="fas fa-edit"></i> Chỉnh sửa
-                            </>
-                        )}
-                    </button>
-                </div>
-
-                {updateSuccess && (
-                    <div className="success-message">
-                        <i className="fas fa-check-circle"></i> {updateSuccess}
-                    </div>
-                )}
-
-                {error && (
-                    <div className="error-banner">
-                        <i className="fas fa-exclamation-circle"></i> {error}
-                    </div>
-                )}
-
-                <div className="profile-content">
-                    <div className="profile-avatar">
-                        <div className="avatar-circle">
-                            {userData?.name ? userData.name.charAt(0).toUpperCase() : 'U'}
-                        </div>
-                        <h2 className="user-name">{userData?.name}</h2>
-                        <p className="user-role">{userData?.role === 'admin' ? 'Quản trị viên' : 'Học sinh'}</p>
-                    </div>
-
-                    <div className="profile-details">
-                        <form onSubmit={handleSubmit}>
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label>Họ và tên</label>
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            name="name"
-                                            value={formData.name}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                    ) : (
-                                        <p className="profile-info">{userData?.name || '(Chưa cập nhật)'}</p>
-                                    )}
-                                </div>
-
-                                <div className="form-group">
-                                    <label>Email</label>
-                                    <p className="profile-info">{userData?.email}</p>
-                                    <small className="info-note">Email không thể thay đổi</small>
-                                </div>
-                            </div>
-
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label>Số điện thoại</label>
-                                    {isEditing ? (
-                                        <input
-                                            type="tel"
-                                            name="phone"
-                                            value={formData.phone}
-                                            onChange={handleChange}
-                                            placeholder="Nhập số điện thoại"
-                                        />
-                                    ) : (
-                                        <p className="profile-info">{userData?.phone || '(Chưa cập nhật)'}</p>
-                                    )}
-                                </div>
-
-                                <div className="form-group">
-                                    <label>Ngày sinh</label>
-                                    {isEditing ? (
-                                        <input
-                                            type="date"
-                                            name="birthday"
-                                            value={formData.birthday}
-                                            onChange={handleChange}
-                                        />
-                                    ) : (
-                                        <p className="profile-info">
-                                            {userData?.birthday
-                                                ? new Date(userData.birthday).toLocaleDateString('vi-VN')
-                                                : '(Chưa cập nhật)'}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="form-group full-width">
-                                <label>Địa chỉ</label>
-                                {isEditing ? (
-                                    <input
-                                        type="text"
-                                        name="address"
-                                        value={formData.address}
-                                        onChange={handleChange}
-                                        placeholder="Nhập địa chỉ"
-                                    />
-                                ) : (
-                                    <p className="profile-info">{userData?.address || '(Chưa cập nhật)'}</p>
-                                )}
-                            </div>
-
-                            {isEditing && (
-                                <div className="password-section">
-                                    <h3>Đổi mật khẩu</h3>
-                                    <p className="password-note">Để trống nếu bạn không muốn thay đổi mật khẩu</p>
-
-                                    {passwordError && (
-                                        <div className="password-error">
-                                            <i className="fas fa-exclamation-triangle"></i> {passwordError}
-                                        </div>
-                                    )}
-
-                                    <div className="form-group">
-                                        <label>Mật khẩu hiện tại</label>
-                                        <input
-                                            type="password"
-                                            name="currentPassword"
-                                            value={formData.currentPassword}
-                                            onChange={handleChange}
-                                            placeholder="Nhập mật khẩu hiện tại"
-                                        />
-                                    </div>
-
-                                    <div className="form-row">
-                                        <div className="form-group">
-                                            <label>Mật khẩu mới</label>
-                                            <input
-                                                type="password"
-                                                name="newPassword"
-                                                value={formData.newPassword}
-                                                onChange={handleChange}
-                                                placeholder="Nhập mật khẩu mới"
-                                            />
-                                        </div>
-
-                                        <div className="form-group">
-                                            <label>Xác nhận mật khẩu mới</label>
-                                            <input
-                                                type="password"
-                                                name="confirmPassword"
-                                                value={formData.confirmPassword}
-                                                onChange={handleChange}
-                                                placeholder="Nhập lại mật khẩu mới"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {isEditing && (
-                                <div className="form-actions">
-                                    <button type="submit" className="btn-save" disabled={loading}>
-                                        {loading ? 'Đang lưu...' : 'Lưu thay đổi'}
-                                    </button>
-                                </div>
-                            )}
-                        </form>
-                    </div>
-                </div>
-
-                <div className="profile-stats">
-                    <h3>Thống kê hoạt động</h3>
-                    <div className="stats-grid">
-                        <div className="stat-card">
-                            <div className="stat-icon exams">
-                                <i className="fas fa-file-alt"></i>
-                            </div>
-                            <div className="stat-info">
-                                <div className="stat-value">{userData?.examsTaken || 0}</div>
-                                <div className="stat-label">Bài thi đã làm</div>
-                            </div>
-                        </div>
-                        <div className="stat-card">
-                            <div className="stat-icon results">
-                                <i className="fas fa-chart-line"></i>
-                            </div>
-                            <div className="stat-info">
-                                <div className="stat-value">{userData?.averageScore || 0}</div>
-                                <div className="stat-label">Điểm trung bình</div>
-                            </div>
-                        </div>
-                        <div className="stat-card">
-                            <div className="stat-icon date">
-                                <i className="fas fa-calendar-check"></i>
-                            </div>
-                            <div className="stat-info">
-                                <div className="stat-value">
-                                    {userData?.lastActive
-                                        ? new Date(userData.lastActive).toLocaleDateString('vi-VN')
-                                        : 'Chưa có'}
-                                </div>
-                                <div className="stat-label">Hoạt động gần đây</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="recent-exams">
-                    <h3>Bài thi gần đây</h3>
-                    {userData?.recentExams && userData.recentExams.length > 0 ? (
-                        <table className="exam-table">
-                            <thead>
-                                <tr>
-                                    <th>Tên bài thi</th>
-                                    <th>Ngày làm</th>
-                                    <th>Điểm</th>
-                                    <th>Trạng thái</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {userData.recentExams.map((exam, index) => (
-                                    <tr key={index}>
-                                        <td>{exam.examName}</td>
-                                        <td>{new Date(exam.date).toLocaleDateString('vi-VN')}</td>
-                                        <td className="exam-score">{exam.score}/{exam.totalScore}</td>
-                                        <td>
-                                            <span className={`status-badge ${exam.passed ? 'passed' : 'failed'}`}>
-                                                {exam.passed ? 'Đạt' : 'Chưa đạt'}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    ) : (
-                        <p className="no-exams">Bạn chưa làm bài thi nào.</p>
-                    )}
-                </div>
-            </div>
-        </div>
+      <div className="profile-page loading-container">
+        <div className="loading-spinner"></div>
+        <p>Đang tải thông tin...</p>
+      </div>
     );
+  }
+
+  if (error && !userProfile) {
+    return (
+      <div className="profile-page error-container">
+        <div className="error-icon">
+          <i className="fas fa-exclamation-circle"></i>
+        </div>
+        <p className="error-message">{error}</p>
+        <button className="btn-retry" onClick={fetchUserProfile}>
+          <i className="fas fa-redo"></i>
+          Thử lại
+        </button>
+      </div>
+    );
+  }
+
+  const getUserRole = () => {
+    if (!combinedUserData?.roles || combinedUserData.roles.length === 0) {
+      return "Người dùng";
+    }
+
+    if (combinedUserData.roles.includes("ADMIN")) return "Quản trị viên";
+    if (combinedUserData.roles.includes("TEACHER")) return "Giáo viên";
+    if (combinedUserData.roles.includes("STUDENT")) return "Học sinh";
+    return "Người dùng";
+  };
+
+  // Check if user can edit (not ADMIN) - use JWT roles
+  const canEdit = () => {
+    if (!combinedUserData?.roles || combinedUserData.roles.length === 0) {
+      return false;
+    }
+
+    const hasRoles = combinedUserData.roles.length > 0;
+    const isNotAdmin = !combinedUserData.roles.includes("ADMIN");
+    return hasRoles && isNotAdmin;
+  };
+
+  return (
+    <div className="profile-page">
+      <div className="profile-container">
+        <div className="profile-header">
+          <h1>
+            <i className="fas fa-user-circle"></i>
+            Thông tin cá nhân
+          </h1>
+          {canEdit() && (
+            <button
+              className={`btn-edit ${isEditing ? "btn-cancel" : ""}`}
+              onClick={toggleEditMode}
+            >
+              <i className={`fas ${isEditing ? "fa-times" : "fa-edit"}`}></i>
+              {isEditing ? "Hủy" : "Chỉnh sửa"}
+            </button>
+          )}
+        </div>
+
+        {updateSuccess && (
+          <div className="alert alert-success">
+            <i className="fas fa-check-circle"></i>
+            {updateSuccess}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="profile-form">
+          <div className="form-group">
+            <label>
+              <i className="fas fa-user-tag"></i>
+              Vai trò:
+            </label>
+            <p className="user-role">{getUserRole()}</p>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="fullname">
+              <i className="fas fa-id-card"></i>
+              Họ và tên:
+            </label>
+            {isEditing ? (
+              <input
+                type="text"
+                id="fullname"
+                name="fullname"
+                value={formData.fullname}
+                onChange={handleChange}
+                required
+                placeholder="Nhập họ và tên của bạn"
+              />
+            ) : (
+              <p>{combinedUserData.fullname}</p>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="email">
+              <i className="fas fa-envelope"></i>
+              Email:
+            </label>
+            {isEditing ? (
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                placeholder="Nhập email của bạn"
+              />
+            ) : (
+              <p>{combinedUserData.email}</p>
+            )}
+          </div>
+
+          {isEditing && (
+            <div className="form-actions">
+              <button
+                type="submit"
+                className="btn-save"
+                disabled={updateLoading}
+              >
+                <i className="fas fa-save"></i>
+                {updateLoading ? "Đang lưu..." : "Lưu thay đổi"}
+              </button>
+            </div>
+          )}
+        </form>
+      </div>
+    </div>
+  );
 };
 
-export default ProfilePage; 
+export default ProfilePage;
